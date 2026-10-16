@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
 )
 
 func TestMovesUpdateStateAndScore(t *testing.T) {
-	h := Start(t.Context(), core.None, 0)
+	h := Start(t.Context(), core.None, core.Hard, 0)
 	for _, c := range []int{0, 3, 1, 4, 2} {
 		if err := h.Play(c); err != nil {
 			t.Fatal(err)
@@ -32,7 +32,7 @@ func TestMovesUpdateStateAndScore(t *testing.T) {
 }
 
 func TestAIRepliesAndBlocksHuman(t *testing.T) {
-	h := Start(t.Context(), core.O, 30*time.Millisecond)
+	h := Start(t.Context(), core.O, core.Hard, 30*time.Millisecond)
 	updates, cancel := h.Subscribe(false)
 	defer cancel()
 	h.Play(0)
@@ -57,7 +57,7 @@ func TestAIRepliesAndBlocksHuman(t *testing.T) {
 
 func TestWebClientCountAndShutdown(t *testing.T) {
 	ctx, stop := context.WithCancel(context.Background())
-	h := Start(ctx, core.None, 0)
+	h := Start(ctx, core.None, core.Hard, 0)
 	_, cancel := h.Subscribe(true)
 	if n := h.Snapshot().WebClients; n != 1 {
 		t.Fatalf("web clients = %d", n)
@@ -75,9 +75,9 @@ func TestWebClientCountAndShutdown(t *testing.T) {
 }
 
 func TestStateJSONMatchesProtocol(t *testing.T) {
-	h := Start(t.Context(), core.O, time.Hour)
+	h := Start(t.Context(), core.O, core.Hard, time.Hour)
 	b, _ := json.Marshal(h.Snapshot())
-	want := `{"board":[null,null,null,null,null,null,null,null,null],"turn":"X","status":{"kind":"in_progress"},"history":[],"score":{"x":0,"o":0,"draws":0},"ai":"O","web_clients":0,"game_no":1}`
+	want := `{"board":[null,null,null,null,null,null,null,null,null],"turn":"X","status":{"kind":"in_progress"},"history":[],"score":{"x":0,"o":0,"draws":0},"ai":"O","difficulty":"hard","web_clients":0,"game_no":1}`
 	if string(b) != want {
 		t.Fatalf("got  %s\nwant %s", b, want)
 	}

@@ -182,6 +182,62 @@ pub fn best_move(game: &Game) -> Option<usize> {
     best.map(|(_, cell)| cell)
 }
 
+/// How hard the AI tries.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Difficulty {
+    /// Uniformly random legal moves.
+    Easy,
+    /// Perfect play, except a random move [`MEDIUM_MISTAKE_PERCENT`]% of the time.
+    #[default]
+    Medium,
+    /// Perfect play (minimax). Cannot be beaten.
+    Hard,
+}
+
+impl Difficulty {
+    pub fn next(self) -> Self {
+        match self {
+            Difficulty::Easy => Difficulty::Medium,
+            Difficulty::Medium => Difficulty::Hard,
+            Difficulty::Hard => Difficulty::Easy,
+        }
+    }
+}
+
+impl std::fmt::Display for Difficulty {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Difficulty::Easy => "easy",
+            Difficulty::Medium => "medium",
+            Difficulty::Hard => "hard",
+        })
+    }
+}
+
+pub const MEDIUM_MISTAKE_PERCENT: usize = 35;
+
+/// Pick the AI's move at the given difficulty.
+///
+/// `pick(n)` must return a uniformly random number in `0..n`. Taking it as
+/// a parameter keeps this crate free of I/O and global state, and lets tests
+/// substitute a deterministic source.
+pub fn choose_move(
+    game: &Game,
+    difficulty: Difficulty,
+    mut pick: impl FnMut(usize) -> usize,
+) -> Option<usize> {
+    let random = |pick: &mut dyn FnMut(usize) -> usize| {
+        let moves: Vec<usize> = game.legal_moves().collect();
+        (!moves.is_empty()).then(|| moves[pick(moves.len())])
+    };
+    match difficulty {
+        Difficulty::Easy => random(&mut pick),
+        Difficulty::Medium if pick(100) < MEDIUM_MISTAKE_PERCENT => random(&mut pick),
+        Difficulty::Medium | Difficulty::Hard => best_move(game),
+    }
+}
+
 /// Score from the perspective of `to_move`. The board is only 9 cells, so
 /// exhaustive search (~550k nodes from empty) is fast enough without pruning.
 fn negamax(board: &mut Board, to_move: Player, depth: i32) -> i32 {
@@ -296,6 +352,46 @@ mod tests {
         explore(&Game::new(), Player::X, &mut games);
         explore(&Game::new(), Player::O, &mut games);
         assert!(games > 100);
+    }
+
+    #[test]
+    fn difficulty_controls_move_choice() {
+        // X: 0,1  O: 3,4 — the winning move for X is 2; legal moves are 2,5,6,7,8.
+        let g = play_all(&[0, 3, 1, 4]);
+        // Easy: whatever the RNG says, here the last legal move.
+        assert_eq!(choose_move(&g, Difficulty::Easy, |n| n - 1), Some(8));
+        // Medium, roll 99 (no mistake): perfect play.
+        assert_eq!(
+            choose_move(&g, Difficulty::Medium, |n| if n == 100 {
+                99
+            } else {
+                n - 1
+            }),
+            Some(2)
+        );
+        // Medium, roll 0 (mistake): random move.
+        assert_eq!(
+            choose_move(&g, Difficulty::Medium, |n| if n == 100 { 0 } else { n - 1 }),
+            Some(8)
+        );
+        // Hard never consults the RNG.
+        assert_eq!(
+            choose_move(&g, Difficulty::Hard, |_| unreachable!()),
+            Some(2)
+        );
+        // Game over: no move at any level.
+        let over = play_all(&[0, 3, 1, 4, 2]);
+        assert_eq!(choose_move(&over, Difficulty::Easy, |_| 0), None);
+    }
+
+    #[test]
+    fn difficulty_serializes_lowercase() {
+        assert_eq!(
+            serde_json::to_string(&Difficulty::Medium).unwrap(),
+            r#""medium""#
+        );
+        assert_eq!(Difficulty::default(), Difficulty::Medium);
+        assert_eq!(Difficulty::Hard.next(), Difficulty::Easy);
     }
 
     #[test]

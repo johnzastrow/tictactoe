@@ -225,3 +225,66 @@ func negamax(b *Board, toMove Player, depth int) int {
 	}
 	return best
 }
+
+// Difficulty controls how hard the AI tries. It marshals as "easy" etc.
+type Difficulty string
+
+const (
+	Easy   Difficulty = "easy"   // uniformly random legal moves
+	Medium Difficulty = "medium" // perfect play, but a random move MediumMistakePercent% of the time
+	Hard   Difficulty = "hard"   // perfect play (minimax); cannot be beaten
+)
+
+const MediumMistakePercent = 35
+
+// ParseDifficulty accepts exactly "easy", "medium" or "hard".
+func ParseDifficulty(s string) (Difficulty, error) {
+	switch d := Difficulty(s); d {
+	case Easy, Medium, Hard:
+		return d, nil
+	}
+	return "", fmt.Errorf("invalid difficulty %q", s)
+}
+
+// UnmarshalJSON rejects unknown levels instead of silently accepting them.
+func (d *Difficulty) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+	v, err := ParseDifficulty(s)
+	if err == nil {
+		*d = v
+	}
+	return err
+}
+
+func (d Difficulty) Next() Difficulty {
+	switch d {
+	case Easy:
+		return Medium
+	case Medium:
+		return Hard
+	}
+	return Easy
+}
+
+// ChooseMove picks the AI's move at the given difficulty. pick(n) must
+// return a uniformly random int in [0, n); passing it in keeps this package
+// free of global state and lets tests use a deterministic source.
+func ChooseMove(g *Game, d Difficulty, pick func(n int) int) (int, bool) {
+	random := func() (int, bool) {
+		moves := g.LegalMoves()
+		if len(moves) == 0 {
+			return 0, false
+		}
+		return moves[pick(len(moves))], true
+	}
+	switch {
+	case d == Easy:
+		return random()
+	case d == Medium && pick(100) < MediumMistakePercent:
+		return random()
+	}
+	return BestMove(g)
+}

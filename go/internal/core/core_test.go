@@ -121,3 +121,49 @@ func TestJSONMatchesProtocol(t *testing.T) {
 		t.Fatal("accepted invalid player")
 	}
 }
+
+func TestDifficultyControlsMoveChoice(t *testing.T) {
+	// X: 0,1  O: 3,4 — X wins at 2; legal moves are 2,5,6,7,8.
+	g := playAll(t, 0, 3, 1, 4)
+	last := func(n int) int { return n - 1 }
+	if c, _ := ChooseMove(g, Easy, last); c != 8 {
+		t.Errorf("easy: got %d", c)
+	}
+	noMistake := func(n int) int {
+		if n == 100 {
+			return 99
+		}
+		return n - 1
+	}
+	if c, _ := ChooseMove(g, Medium, noMistake); c != 2 {
+		t.Errorf("medium without mistake: got %d", c)
+	}
+	mistake := func(n int) int {
+		if n == 100 {
+			return 0
+		}
+		return n - 1
+	}
+	if c, _ := ChooseMove(g, Medium, mistake); c != 8 {
+		t.Errorf("medium with mistake: got %d", c)
+	}
+	if c, _ := ChooseMove(g, Hard, func(int) int { panic("hard must not use the RNG") }); c != 2 {
+		t.Errorf("hard: got %d", c)
+	}
+	if _, ok := ChooseMove(playAll(t, 0, 3, 1, 4, 2), Easy, last); ok {
+		t.Error("no move once the game is over")
+	}
+}
+
+func TestDifficultyParsing(t *testing.T) {
+	var d Difficulty
+	if err := json.Unmarshal([]byte(`"impossible"`), &d); err == nil {
+		t.Fatal("accepted unknown difficulty")
+	}
+	if err := json.Unmarshal([]byte(`"easy"`), &d); err != nil || d != Easy {
+		t.Fatalf("got %v %v", d, err)
+	}
+	if Hard.Next() != Easy {
+		t.Fatal("Next should wrap")
+	}
+}

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] - 2026-10-16
+
+### Added
+- AI difficulty levels (easy / medium / hard) in both implementations: `set_difficulty`
+  protocol message, `difficulty` field in state, `d` key in both TUIs, level selector on
+  the web page, and `--difficulty` / `-difficulty` CLI flags. Default is medium.
+
+### Changed
+- Go module path is now `git.wharf.fluidgrid.org/jcz/tictactoe/go`.
+
 ## [0.2.0] - 2026-10-16
 
 ### Added

@@ -33,6 +33,7 @@ Cells are indexed `0`–`8`, row-major:
 | `{"type":"move","cell":4}` | Play the current player's mark in cell 4. |
 | `{"type":"new_game"}` | Abandon the current game and start a new one. |
 | `{"type":"set_ai","player":"O"}` | AI plays O. `"X"` = AI plays X, `null` = two humans. |
+| `{"type":"set_difficulty","difficulty":"easy"}` | AI level: `"easy"`, `"medium"` or `"hard"`. Applies from the AI's next move. |
 
 Unknown or malformed messages produce an `error` reply; the connection stays open.
 
@@ -49,6 +50,7 @@ Unknown or malformed messages produce an `error` reply; the connection stays ope
   "history": [0, 4],
   "score": {"x": 2, "o": 1, "draws": 3},
   "ai": "O",
+  "difficulty": "medium",
   "web_clients": 1,
   "game_no": 7
 }
@@ -72,3 +74,6 @@ Unknown or malformed messages produce an `error` reply; the connection stays ope
 - When `ai` is set and it is the AI's turn, human moves are rejected and the
   AI replies after a short delay (~350 ms).
 - Score is updated once when a game ends.
+- AI levels: **easy** plays uniformly random legal moves; **medium** plays
+  perfectly except for a random move 35% of the time; **hard** is full
+  minimax and cannot be beaten. Default: medium.

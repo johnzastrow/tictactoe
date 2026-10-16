@@ -8,8 +8,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/hub"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/hub"
 )
 
 func screen(t *testing.T, m Model, w, h int) []string {
@@ -22,7 +22,7 @@ func screen(t *testing.T, m Model, w, h int) []string {
 }
 
 func TestFullLayoutAndMouseGeometry(t *testing.T) {
-	h := hub.Start(t.Context(), core.None, 0)
+	h := hub.Start(t.Context(), core.None, core.Hard, 0)
 	for _, c := range []int{4, 0, 8} {
 		h.Play(c)
 	}
@@ -71,7 +71,7 @@ func TestFullLayoutAndMouseGeometry(t *testing.T) {
 }
 
 func TestKeysAndClickPlay(t *testing.T) {
-	h := hub.Start(t.Context(), core.None, 0)
+	h := hub.Start(t.Context(), core.None, core.Hard, 0)
 	m, cancel := New(h, "")
 	defer cancel()
 	next, _ := m.Update(tea.WindowSizeMsg{Width: 100, Height: 32})
@@ -100,7 +100,7 @@ func TestKeysAndClickPlay(t *testing.T) {
 }
 
 func TestNarrowAndTinyTerminals(t *testing.T) {
-	h := hub.Start(t.Context(), core.None, 0)
+	h := hub.Start(t.Context(), core.None, core.Hard, 0)
 	m, cancel := New(h, "")
 	defer cancel()
 	if all := strings.Join(screen(t, m, 50, 22), "\n"); !strings.Contains(all, "to move") {

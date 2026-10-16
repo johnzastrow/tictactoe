@@ -1,4 +1,4 @@
-module git.wharf.fluidgrid.org/johnzastrow/tictactoe/go
+module git.wharf.fluidgrid.org/jcz/tictactoe/go
 
 go 1.26.5
 

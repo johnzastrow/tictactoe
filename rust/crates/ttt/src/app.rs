@@ -136,6 +136,13 @@ impl App {
                 };
                 self.act(self.hub.set_ai(next).await, &label);
             }
+            KeyCode::Char('d') => {
+                let next = self.state.difficulty.next();
+                self.act(
+                    self.hub.set_difficulty(next).await,
+                    &format!("AI level: {next}"),
+                );
+            }
             KeyCode::Char('t') => {
                 self.theme = (self.theme + 1) % theme::THEMES.len();
                 self.info(format!("Theme: {}", self.theme().name));

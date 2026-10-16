@@ -21,7 +21,7 @@ use crossterm::{
     execute,
 };
 use tokio::{net::TcpListener, sync::oneshot};
-use ttt_core::Player;
+use ttt_core::{Difficulty, Player};
 use ttt_server::{HubHandle, spawn_hub};
 
 const AI_DELAY: Duration = Duration::from_millis(350);
@@ -36,6 +36,10 @@ struct Cli {
     /// Who the AI plays at startup.
     #[arg(long, value_enum, default_value_t = AiArg::O, global = true)]
     ai: AiArg,
+
+    /// How hard the AI plays at startup.
+    #[arg(long, short, value_enum, default_value_t = Level::Medium, global = true)]
+    difficulty: Level,
 
     /// Run the TUI without starting the web interface.
     #[arg(long)]
@@ -58,6 +62,23 @@ enum AiArg {
     O,
 }
 
+#[derive(Clone, Copy, ValueEnum)]
+enum Level {
+    Easy,
+    Medium,
+    Hard,
+}
+
+impl From<Level> for Difficulty {
+    fn from(l: Level) -> Self {
+        match l {
+            Level::Easy => Difficulty::Easy,
+            Level::Medium => Difficulty::Medium,
+            Level::Hard => Difficulty::Hard,
+        }
+    }
+}
+
 impl From<AiArg> for Option<Player> {
     fn from(a: AiArg) -> Self {
         match a {
@@ -71,7 +92,7 @@ impl From<AiArg> for Option<Player> {
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let hub = spawn_hub(cli.ai.into(), AI_DELAY);
+    let hub = spawn_hub(cli.ai.into(), cli.difficulty.into(), AI_DELAY);
 
     match cli.command {
         Some(Command::Serve) => run_headless(hub, cli.port).await,

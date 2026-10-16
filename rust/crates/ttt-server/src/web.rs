@@ -22,7 +22,7 @@ use axum::{
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
-use ttt_core::Player;
+use ttt_core::{Difficulty, Player};
 
 use crate::hub::{HubHandle, StateView};
 
@@ -39,6 +39,7 @@ pub enum ClientMsg {
     Move { cell: usize },
     NewGame,
     SetAi { player: Option<Player> },
+    SetDifficulty { difficulty: Difficulty },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -235,6 +236,7 @@ async fn dispatch(hub: &HubHandle, text: &str) -> Result<(), String> {
         ClientMsg::Move { cell } => hub.play(cell).await,
         ClientMsg::NewGame => hub.new_game().await,
         ClientMsg::SetAi { player } => hub.set_ai(player).await,
+        ClientMsg::SetDifficulty { difficulty } => hub.set_difficulty(difficulty).await,
     };
     result.map_err(|e| e.to_string())
 }

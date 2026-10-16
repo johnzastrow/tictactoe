@@ -7,8 +7,8 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/hub"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/hub"
 )
 
 const (
@@ -147,6 +147,9 @@ func (m Model) onKey(k tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			next, label = core.None, "Two humans"
 		}
 		return m, m.call(label, func() error { return m.hub.SetAI(next) })
+	case "d":
+		next := m.state.Difficulty.Next()
+		return m, m.call("AI level: "+string(next), func() error { return m.hub.SetDifficulty(next) })
 	case "t":
 		m.theme = (m.theme + 1) % len(themes)
 		m.setToast("Theme: "+themes[m.theme].Name, false)

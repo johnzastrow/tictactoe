@@ -8,10 +8,11 @@ package hub
 import (
 	"context"
 	"errors"
+	"math/rand/v2"
 	"slices"
 	"time"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
 )
 
 type Score struct {
@@ -22,14 +23,15 @@ type Score struct {
 
 // StateView is everything a front end needs to render; it is also the wire format.
 type StateView struct {
-	Board      core.Board  `json:"board"`
-	Turn       core.Player `json:"turn"`
-	Status     core.Status `json:"status"`
-	History    []int       `json:"history"`
-	Score      Score       `json:"score"`
-	AI         core.Player `json:"ai"`
-	WebClients int         `json:"web_clients"`
-	GameNo     int         `json:"game_no"`
+	Board      core.Board      `json:"board"`
+	Turn       core.Player     `json:"turn"`
+	Status     core.Status     `json:"status"`
+	History    []int           `json:"history"`
+	Score      Score           `json:"score"`
+	AI         core.Player     `json:"ai"`
+	Difficulty core.Difficulty `json:"difficulty"`
+	WebClients int             `json:"web_clients"`
+	GameNo     int             `json:"game_no"`
 }
 
 var (
@@ -49,6 +51,7 @@ type state struct {
 	game    *core.Game
 	score   Score
 	ai      core.Player
+	level   core.Difficulty
 	web     int
 	gameNo  int
 	aiDelay time.Duration
@@ -60,10 +63,10 @@ type state struct {
 
 // Start launches the hub goroutine; it stops when ctx is cancelled.
 // aiDelay is a cosmetic pause before the AI moves.
-func Start(ctx context.Context, ai core.Player, aiDelay time.Duration) *Hub {
+func Start(ctx context.Context, ai core.Player, level core.Difficulty, aiDelay time.Duration) *Hub {
 	h := &Hub{cmds: make(chan command, 256), done: make(chan struct{})}
 	s := &state{
-		game: core.NewGame(), ai: ai, gameNo: 1, aiDelay: aiDelay,
+		game: core.NewGame(), ai: ai, level: level, gameNo: 1, aiDelay: aiDelay,
 		subs: map[int]chan StateView{}, hub: h,
 	}
 	s.last = s.view()
@@ -125,6 +128,11 @@ func (h *Hub) SetAI(p core.Player) error {
 		s.ai = p
 		s.scheduleAI()
 	})
+}
+
+// SetDifficulty changes how hard the AI plays from its next move on.
+func (h *Hub) SetDifficulty(d core.Difficulty) error {
+	return h.do(func(s *state) { s.level = d })
 }
 
 func (h *Hub) Snapshot() StateView {
@@ -201,7 +209,7 @@ func (s *state) scheduleAI() {
 			if gameNo != s.gameNo || ply != s.game.Plies() || s.ai != s.game.Turn() {
 				return
 			}
-			if c, ok := core.BestMove(s.game); ok {
+			if c, ok := core.ChooseMove(s.game, s.level, rand.IntN); ok {
 				s.apply(c)
 			}
 		}:
@@ -213,7 +221,7 @@ func (s *state) scheduleAI() {
 func (s *state) view() StateView {
 	return StateView{
 		Board: s.game.Board(), Turn: s.game.Turn(), Status: s.game.Status(),
-		History: s.game.History(), Score: s.score, AI: s.ai,
+		History: s.game.History(), Score: s.score, AI: s.ai, Difficulty: s.level,
 		WebClients: s.web, GameNo: s.gameNo,
 	}
 }
@@ -237,6 +245,6 @@ func (s *state) publish() {
 
 func equal(a, b StateView) bool {
 	return a.Board == b.Board && a.Turn == b.Turn && a.Status.Kind == b.Status.Kind &&
-		slices.Equal(a.History, b.History) && a.Score == b.Score && a.AI == b.AI &&
+		slices.Equal(a.History, b.History) && a.Score == b.Score && a.AI == b.AI && a.Difficulty == b.Difficulty &&
 		a.WebClients == b.WebClients && a.GameNo == b.GameNo
 }

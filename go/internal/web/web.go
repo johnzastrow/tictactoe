@@ -17,8 +17,8 @@ import (
 
 	"github.com/coder/websocket"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/hub"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/hub"
 )
 
 //go:embed assets
@@ -32,9 +32,10 @@ const (
 // ClientMsg is any message a browser may send. Fields unused by a given
 // type are ignored.
 type ClientMsg struct {
-	Type   string       `json:"type"`
-	Cell   *int         `json:"cell"`
-	Player *core.Player `json:"player"`
+	Type       string           `json:"type"`
+	Cell       *int             `json:"cell"`
+	Player     *core.Player     `json:"player"`
+	Difficulty *core.Difficulty `json:"difficulty"`
 }
 
 type errorMsg struct {
@@ -200,6 +201,8 @@ func dispatch(h *hub.Hub, data []byte) error {
 			p = *m.Player
 		}
 		return h.SetAI(p)
+	case m.Type == "set_difficulty" && m.Difficulty != nil:
+		return h.SetDifficulty(*m.Difficulty)
 	}
 	return errors.New("malformed message")
 }

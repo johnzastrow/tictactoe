@@ -578,6 +578,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fastrand"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da7c62ceae207dd37ea5b845da6a0696c799f85e97da1ab5b7910be3c1c80223"
+
+[[package]]
 name = "filedescriptor"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2142,7 +2148,7 @@ dependencies = [
 
 [[package]]
 name = "ttt"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -2158,7 +2164,7 @@ dependencies = [
 
 [[package]]
 name = "ttt-core"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -2167,9 +2173,10 @@ dependencies = [
 
 [[package]]
 name = "ttt-server"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "axum",
+ "fastrand",
  "futures-util",
  "serde",
  "serde_json",

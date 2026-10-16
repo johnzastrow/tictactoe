@@ -8,12 +8,13 @@ use tokio_tungstenite::{
     connect_async,
     tungstenite::{Message, client::IntoClientRequest, http::HeaderValue},
 };
+use ttt_core::Difficulty;
 use ttt_server::{ServerMsg, spawn_hub};
 
 async fn start() -> u16 {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let port = listener.local_addr().unwrap().port();
-    let hub = spawn_hub(None, Duration::ZERO);
+    let hub = spawn_hub(None, Difficulty::Hard, Duration::ZERO);
     tokio::spawn(ttt_server::serve(listener, hub, std::future::pending()));
     port
 }
@@ -109,4 +110,37 @@ async fn foreign_host_is_rejected() {
         .await
         .unwrap_err();
     assert!(err.to_string().contains("421"), "{err}");
+}
+
+#[tokio::test]
+async fn set_difficulty_is_broadcast() {
+    let port = start().await;
+    let (mut ws, _) = connect_async(request(port, None, None)).await.unwrap();
+    match next_msg(&mut ws).await {
+        ServerMsg::State(s) => assert_eq!(s.difficulty, Difficulty::Hard),
+        other => panic!("{other:?}"),
+    }
+    ws.send(Message::Text(
+        r#"{"type":"set_difficulty","difficulty":"easy"}"#.into(),
+    ))
+    .await
+    .unwrap();
+    loop {
+        if let ServerMsg::State(s) = next_msg(&mut ws).await
+            && s.difficulty == Difficulty::Easy
+        {
+            break;
+        }
+    }
+    ws.send(Message::Text(
+        r#"{"type":"set_difficulty","difficulty":"impossible"}"#.into(),
+    ))
+    .await
+    .unwrap();
+    loop {
+        if let ServerMsg::Error { message } = next_msg(&mut ws).await {
+            assert_eq!(message, "malformed message");
+            break;
+        }
+    }
 }

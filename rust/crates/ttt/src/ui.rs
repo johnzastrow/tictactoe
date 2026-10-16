@@ -9,7 +9,7 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Block, BorderType, Clear, List, ListItem, ListState, Paragraph, Wrap},
 };
-use ttt_core::{Player, Status};
+use ttt_core::{Difficulty, Player, Status};
 
 use crate::{app::App, theme::Theme};
 
@@ -334,7 +334,7 @@ fn draw_status(f: &mut Frame, app: &App, t: &Theme, area: Rect) {
 fn draw_sidebar(f: &mut Frame, app: &App, t: &Theme, area: Rect) {
     let [score, mode, history] = Layout::vertical([
         Constraint::Length(6),
-        Constraint::Length(5),
+        Constraint::Length(6),
         Constraint::Min(3),
     ])
     .areas(area);
@@ -398,14 +398,18 @@ fn draw_score(f: &mut Frame, app: &App, t: &Theme, area: Rect) {
 
 fn draw_mode(f: &mut Frame, app: &App, t: &Theme, area: Rect) {
     let block = panel(t, "Opponent").title_bottom(
-        Line::from(Span::styled(" a to change ", Style::new().fg(t.muted))).right_aligned(),
+        Line::from(Span::styled(
+            " a opponent · d level ",
+            Style::new().fg(t.muted),
+        ))
+        .right_aligned(),
     );
     let options = [
         (None, "Two humans"),
         (Some(Player::O), "AI plays O"),
         (Some(Player::X), "AI plays X"),
     ];
-    let lines: Vec<Line> = options
+    let mut lines: Vec<Line> = options
         .into_iter()
         .map(|(v, label)| {
             if app.state.ai == v {
@@ -421,6 +425,19 @@ fn draw_mode(f: &mut Frame, app: &App, t: &Theme, area: Rect) {
             }
         })
         .collect();
+
+    // Difficulty row; dimmed when there's no AI to apply it to.
+    let mut level = vec![Span::styled(" level ", Style::new().fg(t.muted))];
+    for d in [Difficulty::Easy, Difficulty::Medium, Difficulty::Hard] {
+        let style = match (d == app.state.difficulty, app.state.ai.is_some()) {
+            (true, true) => Style::new().fg(t.win_fg).bg(t.accent).bold(),
+            (true, false) => Style::new().fg(t.fg).bg(t.cursor),
+            (false, _) => Style::new().fg(t.muted),
+        };
+        level.push(Span::raw(" "));
+        level.push(Span::styled(format!(" {d} "), style));
+    }
+    lines.push(Line::from(level));
     f.render_widget(Paragraph::new(lines).block(block), area);
 }
 
@@ -463,6 +480,7 @@ fn draw_footer(f: &mut Frame, t: &Theme, area: Rect) {
         ("1-9", "cell"),
         ("n", "new"),
         ("a", "opponent"),
+        ("d", "level"),
         ("t", "theme"),
         ("?", "help"),
         ("q", "quit"),
@@ -479,7 +497,7 @@ fn draw_footer(f: &mut Frame, t: &Theme, area: Rect) {
 }
 
 fn draw_help(f: &mut Frame, t: &Theme, area: Rect) {
-    let popup = center(area, Constraint::Length(58), Constraint::Length(17));
+    let popup = center(area, Constraint::Length(58), Constraint::Length(18));
     let key = |k: &str, d: &str| {
         Line::from(vec![
             Span::styled(format!("  {k:<14}"), Style::new().fg(t.accent).bold()),
@@ -494,6 +512,7 @@ fn draw_help(f: &mut Frame, t: &Theme, area: Rect) {
         key("mouse", "hover to aim, click to play"),
         key("n", "new game (score is kept)"),
         key("a", "cycle opponent: humans / AI O / AI X"),
+        key("d", "cycle AI level: easy / medium / hard"),
         key("t", "cycle colour theme"),
         key("q / esc", "quit"),
         Line::default(),
@@ -543,7 +562,7 @@ mod tests {
 
     #[tokio::test]
     async fn renders_full_layout_and_maps_cells() {
-        let hub = spawn_hub(None, Duration::ZERO);
+        let hub = spawn_hub(None, Difficulty::Hard, Duration::ZERO);
         for cell in [4, 0, 8] {
             hub.play(cell).await.unwrap();
         }
@@ -561,11 +580,14 @@ mod tests {
 
     #[tokio::test]
     async fn small_terminal_degrades_gracefully() {
-        let hub = spawn_hub(None, Duration::ZERO);
+        let hub = spawn_hub(None, Difficulty::Hard, Duration::ZERO);
         let mut app = App::new(hub, None);
         let screen = render(&mut app, 50, 22);
         println!("{screen}");
-        assert!(screen.contains("to move"), "board still usable without sidebar");
+        assert!(
+            screen.contains("to move"),
+            "board still usable without sidebar"
+        );
         assert!(render(&mut app, 20, 10).contains("too small"));
     }
 }

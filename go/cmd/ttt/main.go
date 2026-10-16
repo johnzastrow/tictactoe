@@ -19,10 +19,10 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/hub"
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/tui"
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/web"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/hub"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/tui"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/web"
 )
 
 const aiDelay = 350 * time.Millisecond
@@ -44,6 +44,7 @@ func run() error {
 	fs := flag.NewFlagSet("ttt", flag.ExitOnError)
 	port := fs.Int("port", 8787, "port for the web interface (always bound to 127.0.0.1)")
 	aiFlag := fs.String("ai", "o", "who the AI plays at startup: off, x, o")
+	level := fs.String("difficulty", "medium", "how hard the AI plays at startup: easy, medium, hard")
 	noWeb := fs.Bool("no-web", false, "run the TUI without starting the web interface")
 	fs.Usage = func() {
 		fmt.Fprintln(fs.Output(), "usage: ttt [serve] [flags]\n\n  serve    run only the web interface (Ctrl-C to stop)\n\nflags:")
@@ -55,13 +56,17 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	difficulty, err := core.ParseDifficulty(*level)
+	if err != nil {
+		return err
+	}
 	if *port < 0 || *port > 65535 {
 		return fmt.Errorf("invalid port %d", *port)
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
-	h := hub.Start(ctx, ai, aiDelay)
+	h := hub.Start(ctx, ai, difficulty, aiDelay)
 
 	if serve {
 		ln, err := listen(*port)

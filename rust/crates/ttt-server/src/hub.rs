@@ -10,7 +10,7 @@ use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tokio::sync::{mpsc, oneshot, watch};
-use ttt_core::{Board, Game, MoveError, Player, Status, best_move};
+use ttt_core::{Board, Difficulty, Game, MoveError, Player, Status, choose_move};
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Score {
@@ -28,6 +28,7 @@ pub struct StateView {
     pub history: Vec<usize>,
     pub score: Score,
     pub ai: Option<Player>,
+    pub difficulty: Difficulty,
     pub web_clients: u32,
     pub game_no: u32,
 }
@@ -49,6 +50,7 @@ enum Command {
     },
     NewGame,
     SetAi(Option<Player>),
+    SetDifficulty(Difficulty),
     ClientJoined,
     ClientLeft,
     /// Scheduled by the hub itself; ignored if the game moved on meanwhile.
@@ -78,6 +80,10 @@ impl HubHandle {
 
     pub async fn set_ai(&self, player: Option<Player>) -> Result<(), HubError> {
         self.send(Command::SetAi(player)).await
+    }
+
+    pub async fn set_difficulty(&self, difficulty: Difficulty) -> Result<(), HubError> {
+        self.send(Command::SetDifficulty(difficulty)).await
     }
 
     /// A receiver that wakes whenever the state changes.
@@ -119,6 +125,7 @@ struct Hub {
     game: Game,
     score: Score,
     ai: Option<Player>,
+    difficulty: Difficulty,
     web_clients: u32,
     game_no: u32,
     ai_delay: Duration,
@@ -127,7 +134,7 @@ struct Hub {
 }
 
 /// Start the hub task. `ai_delay` is a cosmetic pause before the AI moves.
-pub fn spawn_hub(ai: Option<Player>, ai_delay: Duration) -> HubHandle {
+pub fn spawn_hub(ai: Option<Player>, difficulty: Difficulty, ai_delay: Duration) -> HubHandle {
     let (tx, mut rx) = mpsc::channel(256);
     let game = Game::new();
     let initial = StateView {
@@ -137,6 +144,7 @@ pub fn spawn_hub(ai: Option<Player>, ai_delay: Duration) -> HubHandle {
         history: Vec::new(),
         score: Score::default(),
         ai,
+        difficulty,
         web_clients: 0,
         game_no: 1,
     };
@@ -145,6 +153,7 @@ pub fn spawn_hub(ai: Option<Player>, ai_delay: Duration) -> HubHandle {
         game,
         score: Score::default(),
         ai,
+        difficulty,
         web_clients: 0,
         game_no: 1,
         ai_delay,
@@ -175,6 +184,7 @@ impl Hub {
                 self.game_no += 1;
                 self.schedule_ai_if_needed();
             }
+            Command::SetDifficulty(d) => self.difficulty = d,
             Command::SetAi(player) => {
                 self.ai = player;
                 self.schedule_ai_if_needed();
@@ -186,7 +196,10 @@ impl Hub {
                 let current = game_no == self.game_no
                     && ply == self.game.history().len()
                     && self.ai == Some(self.game.turn());
-                if current && let Some(cell) = best_move(&self.game) {
+                if current
+                    && let Some(cell) =
+                        choose_move(&self.game, self.difficulty, |n| fastrand::usize(..n))
+                {
                     self.apply(cell).expect("AI picks a legal move");
                 }
             }
@@ -241,6 +254,7 @@ impl Hub {
             history: self.game.history().to_vec(),
             score: self.score,
             ai: self.ai,
+            difficulty: self.difficulty,
             web_clients: self.web_clients,
             game_no: self.game_no,
         };
@@ -262,7 +276,7 @@ mod tests {
 
     #[tokio::test]
     async fn moves_update_state_and_score() {
-        let hub = spawn_hub(None, Duration::ZERO);
+        let hub = spawn_hub(None, Difficulty::Hard, Duration::ZERO);
         for cell in [0, 3, 1, 4, 2] {
             hub.play(cell).await.unwrap();
         }
@@ -285,7 +299,7 @@ mod tests {
 
     #[tokio::test]
     async fn ai_replies_and_blocks_human_on_its_turn() {
-        let hub = spawn_hub(Some(Player::O), Duration::from_millis(50));
+        let hub = spawn_hub(Some(Player::O), Difficulty::Hard, Duration::from_millis(50));
         let mut rx = hub.subscribe();
         hub.play(0).await.unwrap();
         assert_eq!(hub.play(1).await, Err(HubError::AiTurn));

@@ -51,6 +51,7 @@ h1 { font-size: 1.6rem; margin: 0; letter-spacing: -0.02em; }
 .score__item--x strong { color: var(--x); }
 .score__item--o strong { color: var(--o); }
 .mode { border: 1px solid var(--line); border-radius: 10px; margin: 14px 0; display: flex; gap: 12px; flex-wrap: wrap; }
+.mode--off { opacity: .5; }
 .mode legend { color: var(--muted); font-size: .8rem; padding: 0 4px; }
 .btn {
   width: 100%; padding: 10px; border: 0; border-radius: 10px; font: inherit; font-weight: 600;

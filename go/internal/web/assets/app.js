@@ -25,11 +25,18 @@ document.addEventListener("keydown", (e) => {
   if (e.target instanceof HTMLInputElement) return;
   if (e.key >= "1" && e.key <= "9") send({ type: "move", cell: Number(e.key) - 1 });
   else if (e.key === "n") send({ type: "new_game" });
+  else if (e.key === "d" && state) {
+    const order = ["easy", "medium", "hard"];
+    send({ type: "set_difficulty", difficulty: order[(order.indexOf(state.difficulty) + 1) % 3] });
+  }
 });
 
 $("new-game").addEventListener("click", () => send({ type: "new_game" }));
 document.querySelectorAll('input[name="ai"]').forEach((r) =>
   r.addEventListener("change", () => send({ type: "set_ai", player: r.value || null }))
+);
+document.querySelectorAll('input[name="difficulty"]').forEach((r) =>
+  r.addEventListener("change", () => send({ type: "set_difficulty", difficulty: r.value }))
 );
 
 function send(msg) {
@@ -71,6 +78,9 @@ function render(s) {
   $("clients").textContent = s.web_clients;
   $("history").textContent = s.history.length ? s.history.map((c) => c + 1).join(" → ") : "–";
   document.querySelectorAll('input[name="ai"]').forEach((r) => (r.checked = r.value === (s.ai ?? "")));
+  document.querySelectorAll('input[name="difficulty"]').forEach((r) => (r.checked = r.value === s.difficulty));
+  // Level only matters when an AI is playing.
+  $("level").classList.toggle("mode--off", s.ai === null);
 }
 
 function connect() {

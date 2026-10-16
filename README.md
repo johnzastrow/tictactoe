@@ -31,6 +31,15 @@ with the same browser page.
 Only the hub mutates state, so a move made in the terminal shows up in the
 browser instantly (and vice versa) with no locks or races.
 
+## The AI
+
+No machine learning: the opponent is classic **minimax** game-tree search.
+Tic-tac-toe is small enough (~550k positions) to search completely, so on
+**hard** it plays perfectly and the best you can do is draw. **Medium** plays
+perfectly but makes a random move 35% of the time; **easy** plays randomly.
+The core takes the random source as a parameter, so it stays pure and tests
+are deterministic.
+
 ## Rust quick start
 
 ```sh
@@ -39,11 +48,12 @@ cargo run --release              # TUI + web at http://127.0.0.1:8787
 cargo run --release -- --no-web  # TUI only
 cargo run --release -- serve     # web only (Ctrl-C to stop)
 cargo run --release -- --ai off  # two humans (also: --ai x, --ai o [default])
+cargo run --release -- -d hard   # AI level: easy, medium [default], hard
 cargo test                       # core, hub, end-to-end WebSocket, TUI render tests
 ```
 
 TUI keys: arrows/`hjkl` + Enter, `1`–`9`, mouse hover/click, `n` new game,
-`a` cycle opponent, `t` cycle theme, `?` help, `q` quit.
+`a` cycle opponent, `d` cycle AI level, `t` cycle theme, `?` help, `q` quit.
 
 The binary is self-contained (web assets are embedded): copy
 `rust/target/release/ttt` anywhere and run it.
@@ -56,6 +66,7 @@ go run ./cmd/ttt                 # TUI + web at http://127.0.0.1:8787
 go run ./cmd/ttt -no-web         # TUI only
 go run ./cmd/ttt serve           # web only (Ctrl-C to stop)
 go run ./cmd/ttt -ai off         # two humans (also: -ai x, -ai o [default])
+go run ./cmd/ttt -difficulty hard # AI level: easy, medium [default], hard
 go test -race ./...              # core, hub, end-to-end WebSocket, TUI render tests
 
 # Cross-compile from any OS, no extra toolchains needed:

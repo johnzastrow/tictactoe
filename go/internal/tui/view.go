@@ -10,7 +10,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
 )
 
 const (
@@ -428,7 +428,20 @@ func (m Model) mode(t Theme) []string {
 			lines = append(lines, st(t.Muted, t.Panel).Render(" ○ "+o.label))
 		}
 	}
-	return panel(t, "Opponent", "", "a to change", lines, sideW, 5)
+	// Difficulty row; dimmed when there's no AI to apply it to.
+	level := st(t.Muted, t.Panel).Render(" level ")
+	for _, d := range []core.Difficulty{core.Easy, core.Medium, core.Hard} {
+		s := st(t.Muted, t.Panel)
+		switch {
+		case d == m.state.Difficulty && m.state.AI != core.None:
+			s = st(t.WinFG, t.Accent).Bold(true)
+		case d == m.state.Difficulty:
+			s = st(t.FG, t.Cursor)
+		}
+		level += st(t.FG, t.Panel).Render(" ") + s.Render(" "+string(d)+" ")
+	}
+	lines = append(lines, level)
+	return panel(t, "Opponent", "", "a opponent · d level", lines, sideW, 6)
 }
 
 func (m Model) history(t Theme, h int) []string {
@@ -459,7 +472,7 @@ func (m Model) history(t Theme, h int) []string {
 
 func (m Model) footer(t Theme) string {
 	keys := [][2]string{{"←↑↓→", "move"}, {"⏎", "play"}, {"1-9", "cell"}, {"n", "new"},
-		{"a", "opponent"}, {"t", "theme"}, {"?", "help"}, {"q", "quit"}}
+		{"a", "opponent"}, {"d", "level"}, {"t", "theme"}, {"?", "help"}, {"q", "quit"}}
 	line := st(t.Muted, t.BG).Render(" ")
 	for _, k := range keys {
 		line += st(t.BG, t.Muted).Bold(true).Render(" "+k[0]+" ") + st(t.Muted, t.BG).Render(" "+k[1]+"  ")
@@ -481,6 +494,7 @@ func (m Model) helpBox(t Theme) string {
 		key("mouse", "hover to aim, click to play"),
 		key("n", "new game (score is kept)"),
 		key("a", "cycle opponent: humans / AI O / AI X"),
+		key("d", "cycle AI level: easy / medium / hard"),
 		key("t", "cycle colour theme"),
 		key("q / esc", "quit"),
 		"",
@@ -489,5 +503,5 @@ func (m Model) helpBox(t Theme) string {
 		"",
 		center(muted("press any key to close"), 56, st(t.FG, bg)),
 	}
-	return strings.Join(panel(t, "Help", "", "", lines, 58, 17), "\n")
+	return strings.Join(panel(t, "Help", "", "", lines, 58, 18), "\n")
 }

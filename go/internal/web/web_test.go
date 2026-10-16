@@ -15,8 +15,8 @@ import (
 
 	"github.com/coder/websocket"
 
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/core"
-	"git.wharf.fluidgrid.org/johnzastrow/tictactoe/go/internal/hub"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/core"
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/hub"
 )
 
 func start(t *testing.T) int {
@@ -25,7 +25,7 @@ func start(t *testing.T) int {
 	if err != nil {
 		t.Fatal(err)
 	}
-	h := hub.Start(t.Context(), core.None, 0)
+	h := hub.Start(t.Context(), core.None, core.Hard, 0)
 	go Serve(t.Context(), ln, h)
 	return ln.Addr().(*net.TCPAddr).Port
 }
@@ -136,7 +136,7 @@ func TestRefusesNonLoopback(t *testing.T) {
 		t.Skip(err)
 	}
 	defer ln.Close()
-	if err := Serve(t.Context(), ln, hub.Start(t.Context(), core.None, 0)); err == nil {
+	if err := Serve(t.Context(), ln, hub.Start(t.Context(), core.None, core.Hard, 0)); err == nil {
 		t.Fatal("served on 0.0.0.0")
 	}
 }
@@ -152,5 +152,33 @@ func TestAssetsMatchRustCopy(t *testing.T) {
 		if !bytes.Equal(rust, ours) {
 			t.Errorf("%s differs from the Rust copy", name)
 		}
+	}
+}
+
+func TestSetDifficultyIsBroadcast(t *testing.T) {
+	port := start(t)
+	c, _, err := dial(t, port, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	read := func() map[string]any {
+		ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
+		defer cancel()
+		_, b, err := c.Read(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var m map[string]any
+		json.Unmarshal(b, &m)
+		return m
+	}
+	if m := read(); m["difficulty"] != "hard" {
+		t.Fatalf("initial state: %v", m)
+	}
+	send(t, c, `{"type":"set_difficulty","difficulty":"easy"}`)
+	for m := read(); m["difficulty"] != "easy"; m = read() {
+	}
+	send(t, c, `{"type":"set_difficulty","difficulty":"impossible"}`)
+	for m := read(); m["type"] != "error"; m = read() {
 	}
 }
