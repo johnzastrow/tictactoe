@@ -1,0 +1,21 @@
+[package]
+name = "ttt"
+description = "Tic-tac-toe playable from a rich TUI and a local web page at the same time"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ttt-core.workspace = true
+ttt-server.workspace = true
+tokio.workspace = true
+futures-util.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+ratatui.workspace = true
+crossterm.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+
+[lints]
+workspace = true

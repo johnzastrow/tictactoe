@@ -1,0 +1,23 @@
+[package]
+name = "ttt-server"
+description = "Game hub (single owner of state) plus local web/WebSocket server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ttt-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+axum.workspace = true
+futures-util.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tokio-tungstenite.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

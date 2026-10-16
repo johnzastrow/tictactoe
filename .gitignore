@@ -1,0 +1,10 @@
+# Rust
+rust/target/
+# Go
+go/bin/
+go/dist/
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
