@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tic-Tac-Toe</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <h1>Tic&#8209;Tac&#8209;Toe</h1>
+      <span id="conn" class="conn conn--down" role="status">connecting…</span>
+    </header>
+
+    <p id="status" class="status" aria-live="polite">&nbsp;</p>
+
+    <div id="board" class="board" role="grid" aria-label="Game board"></div>
+
+    <section class="panel">
+      <div class="score" aria-label="Score">
+        <div class="score__item score__item--x"><span>X</span><strong id="score-x">0</strong></div>
+        <div class="score__item"><span>Draws</span><strong id="score-d">0</strong></div>
+        <div class="score__item score__item--o"><span>O</span><strong id="score-o">0</strong></div>
+      </div>
+
+      <fieldset class="mode">
+        <legend>Opponent</legend>
+        <label><input type="radio" name="ai" value=""> Two humans</label>
+        <label><input type="radio" name="ai" value="O"> AI plays O</label>
+        <label><input type="radio" name="ai" value="X"> AI plays X</label>
+      </fieldset>
+
+      <button id="new-game" class="btn" type="button">New game</button>
+
+      <p class="meta">Game <span id="game-no">1</span> · <span id="clients">0</span> browser(s) connected · moves: <span id="history">–</span></p>
+      <p id="error" class="error" role="alert"></p>
+    </section>
+  </main>
+</body>
+</html>
