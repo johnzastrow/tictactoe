@@ -10,3 +10,6 @@ go/dist/
 .vscode/
 rust/crates/pt-server/web-dist/
 __pycache__/
+# Go web client build outputs (make web)
+go/internal/pt/web/dist/*
+!go/internal/pt/web/dist/.gitkeep

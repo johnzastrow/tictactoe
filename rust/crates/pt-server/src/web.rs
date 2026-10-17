@@ -286,14 +286,31 @@ async fn me(State(st): State<AppState>, headers: HeaderMap) -> Response {
     }
 }
 
-async fn static_file(uri: Uri) -> Response {
+async fn static_file(uri: Uri, headers: HeaderMap) -> Response {
     let path = uri.path().trim_start_matches('/');
     let path = if path.is_empty() { "index.html" } else { path };
     match Assets::get(path) {
         Some(f) => {
             let mime = f.metadata.mimetype().to_string();
             let cache = if path == "index.html" { "no-cache" } else { "public, max-age=3600" };
-            ([(header::CONTENT_TYPE, mime), (header::CACHE_CONTROL, cache.to_string())], f.data.into_owned()).into_response()
+            let gzip_ok = headers
+                .get(header::ACCEPT_ENCODING)
+                .and_then(|v| v.to_str().ok())
+                .is_some_and(|v| v.contains("gzip"));
+            // a precompressed copy made by `make web`, when the browser accepts it
+            if let Some(gz) = gzip_ok.then(|| Assets::get(&format!("{path}.gz"))).flatten() {
+                return (
+                    [
+                        (header::CONTENT_TYPE, mime),
+                        (header::CACHE_CONTROL, cache.to_string()),
+                        (header::CONTENT_ENCODING, "gzip".to_string()),
+                        (header::VARY, "Accept-Encoding".to_string()),
+                    ],
+                    gz.data.into_owned(),
+                )
+                    .into_response();
+            }
+            ([(header::CONTENT_TYPE, mime), (header::CACHE_CONTROL, cache.to_string()), (header::VARY, "Accept-Encoding".to_string())], f.data.into_owned()).into_response()
         }
         // client-side routes fall back to the app shell
         None if !path.contains('.') => match Assets::get("index.html") {

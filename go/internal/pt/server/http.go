@@ -317,6 +317,14 @@ func (a *app) static(w http.ResponseWriter, r *http.Request) {
 		ct = "application/octet-stream"
 	}
 	w.Header().Set("Content-Type", ct)
+	// Serve a precompressed copy (made by `make web`) when the browser accepts it.
+	if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+		if gz, err := fs.ReadFile(a.assets, p+".gz"); err == nil {
+			b = gz
+			w.Header().Set("Content-Encoding", "gzip")
+		}
+	}
+	w.Header().Set("Vary", "Accept-Encoding")
 	if p == "index.html" {
 		w.Header().Set("Cache-Control", "no-cache")
 	} else {

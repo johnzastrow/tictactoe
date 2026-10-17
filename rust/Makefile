@@ -17,6 +17,8 @@ WASM_OPT_LEVEL ?= z
 
 web:
 	cd crates/pt-web && CARGO_PROFILE_RELEASE_OPT_LEVEL=$(WASM_OPT_LEVEL) CARGO_TARGET_DIR=$(WASM_TARGET_DIR) trunk build --release
+	# precompressed copies; the server sends them to browsers that accept gzip
+	find crates/pt-server/web-dist -type f \( -name '*.wasm' -o -name '*.js' -o -name '*.css' \) -exec gzip -9 -k -f {} \;
 
 pt: web
 	cargo build --release -p pt
