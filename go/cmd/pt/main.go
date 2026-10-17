@@ -257,11 +257,12 @@ func run(args []string) error {
 		srv := fs.String("server", "http://127.0.0.1:8788", "server URL")
 		user := fs.String("user", "", "username")
 		ca := fs.String("ca-cert", "", "extra CA certificate (PEM) to trust for https servers")
-		theme := fs.String("theme", "", "colour theme")
+		theme := fs.String("theme", "", "colour theme: midnight, daylight, solarized-dark, gruvbox")
+		colors := fs.String("colors", "", "force colours: 256 or truecolor (default: detect)")
 		if _, err := parse(fs, args); err != nil {
 			return err
 		}
-		return tui.Run(tui.Options{Server: *srv, User: *user, CACert: *ca, Theme: *theme})
+		return tui.Run(tui.Options{Server: *srv, User: *user, CACert: *ca, Theme: *theme, ForceColors: *colors})
 	case "logout":
 		srv := fs.String("server", "http://127.0.0.1:8788", "server URL")
 		if _, err := parse(fs, args); err != nil {
