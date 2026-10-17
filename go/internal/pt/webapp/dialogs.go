@@ -485,7 +485,7 @@ func newRecordForm(a *App, e core.Entity, id int64) Dialog {
 	}
 	force := map[string]bool{}
 	f.extra = func(body js.Value) {
-		if e == core.EntUser && a.r.IsAdmin() {
+		if e == core.EntUser && (a.r.IsAdmin() || id == a.r.MeID()) {
 			b := ET("button", "btn", "Set password…")
 			Attr(b, "type", "button")
 			f.scope.On(b, "click", func(js.Value) { a.OpenDialog(newPasswordDialog(a, id)) })

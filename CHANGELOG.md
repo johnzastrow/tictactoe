@@ -19,6 +19,14 @@
   - Protocol conformance suite that runs against either server; Playwright
     suites for both web clients.
 - Both servers send precompressed (`.gz`) web assets to browsers that accept them.
+- `docs/pt/USAGE.md`: user guide (setup, views, filter language, editing,
+  collaboration, administration, keyboard reference, troubleshooting).
+- `pt tui --colors 256|truecolor` in both TUIs.
+
+### Changed
+- Rust: `cargo run` in `rust/` now needs `--bin ttt` (the workspace has two
+  binaries); README updated.
+- Go web client: members can change their own password from their user record.
 
 
 ## [0.3.1] - 2026-10-16

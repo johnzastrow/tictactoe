@@ -33,6 +33,8 @@ pub struct Options {
     pub user: Option<String>,
     pub ca_cert: Option<PathBuf>,
     pub theme: Option<String>,
+    /// Force the colour depth: "256" or "truecolor" (default: detect).
+    pub colors: Option<String>,
 }
 
 fn restore_terminal(kitty: bool) {
@@ -46,7 +48,7 @@ fn restore_terminal(kitty: bool) {
 pub async fn run(opts: Options) -> anyhow::Result<()> {
     let url = net::ServerUrl::parse(&opts.server).context("bad --server URL")?;
     let tls = net::tls_config(opts.ca_cert.as_deref())?;
-    theme::detect_color_depth();
+    theme::detect_color_depth(opts.colors.as_deref());
     let theme_idx = match opts.theme.as_deref() {
         Some(name) => theme::theme_index(name).with_context(|| {
             format!("unknown theme '{name}' (try: {})", theme::PALETTES.iter().map(|p| p.name).collect::<Vec<_>>().join(", "))

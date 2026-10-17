@@ -287,3 +287,26 @@ colour (macOS Terminal.app, XFCE with an old VTE). Web themes are CSS custom pro
   (`pt/sessions.json`, mode 0600) when "remember me" is checked; `pt logout` deletes it.
 - TUIs enable: alternate screen, mouse capture (all motion, so hover works), bracketed paste,
   focus events, and the kitty keyboard protocol where supported (disambiguates ^I/Tab, etc.).
+
+## 10. Implementation notes
+
+Where the four clients differ from this spec (as built, 2026-10-17):
+
+| Area | Rust TUI | Go TUI | Rust web | Go web |
+|---|---|---|---|---|
+| Theme key | ^T | ^T | View ▸ Theme (Chrome reserves ^T) | View ▸ Theme |
+| Board scope | `s` opens Program ▸ Project; Esc clears | same | scope comboboxes above the board | same |
+| Timeline dependencies | `◂` marker on waiting bars | same | SVG arrows | SVG arrows |
+| Timeline extras | `e` expands/collapses all; `<` `>` scroll | `<` `>` scroll | buttons for zoom/today | same |
+| Record form conflicts | Enter = keep theirs, ^S = force mine | same | "Keep theirs" button; Ctrl+Shift+S forces | save again forces |
+| Record form layout | one scrolling column | one column, scrolls | two columns | two columns |
+| Board column cap | none | none | 120 cards + "N more" | 120 cards + "N more" |
+| Saved filters store | query text | query text | query, sort, group | query text |
+| Grid hover | – | – | yes | yes |
+| Set own password | Users ▸ context menu | File menu, Users ▸ context menu | Users ▸ context menu | record form |
+| Colour depth | detect, `--colors`, `PT_COLOR` | detect, `--colors` | – | – |
+| Group subtotal for % columns | sums only | sums only | sums only | sums only |
+
+Both TUIs share one key table (identical bindings). Browser clients use the
+spec's Web column. The protocol-level behaviour is identical everywhere
+(checked by the conformance suite and the cross-language runs).

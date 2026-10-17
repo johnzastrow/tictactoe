@@ -94,13 +94,18 @@ rust/crates/pt-server    store + hub + axum HTTP/WS + auth + embedded web assets
 rust/crates/pt-tui       ratatui front end + WebSocket client
 rust/crates/pt-web       Leptos CSR front end (wasm32, built by trunk)
 rust/crates/pt           the `pt` binary: serve / seed / user / tui / logout
+rust/Makefile            `make web` (trunk → pt-server/web-dist), `make pt`, `make test`
+go/Makefile              `make web` (wasm → internal/pt/web/dist), `make pt`, `make test`
 
-go/internal/pt/core      same responsibilities as pt-core
-go/internal/pt/store     SQLite store
-go/internal/pt/server    hub + net/http + coder/websocket + auth
-go/internal/pt/client    WebSocket client used by the TUI
+go/internal/pt/core      same responsibilities as pt-core (also wasm-safe)
+go/internal/pt/store     SQLite store (embeds a drift-checked copy of schema.sql)
+go/internal/pt/auth      Argon2id PHC hashes (compatible with Rust), tokens
+go/internal/pt/seed      demo data, identical to the Rust seeder
+go/internal/pt/server    hub + net/http + coder/websocket
+go/internal/pt/client    HTTP/WebSocket client and session cache used by the TUI
 go/internal/pt/tui       Bubble Tea v2 front end
-go/internal/pt/web       GOOS=js wasm front end + DOM kit (built into assets/)
+go/internal/pt/webapp    GOOS=js wasm front end + DOM kit (source, static files, e2e)
+go/internal/pt/web       embed package: serves dist/, built by `make web`
 go/cmd/pt                the `pt` binary
 ```
 
@@ -112,7 +117,7 @@ pt seed   [--db pt.db] [--password PW] [--force]
 pt user   add <username> [--name "Full Name"] [--role admin|member|viewer]
 pt user   passwd <username>
 pt user   list
-pt tui    [--server http://127.0.0.1:8788] [--user NAME] [--ca-cert F] [--theme NAME]
+pt tui    [--server http://127.0.0.1:8788] [--user NAME] [--ca-cert F] [--theme NAME] [--colors 256|truecolor]
 pt logout [--server URL]
 ```
 
@@ -120,6 +125,14 @@ Passwords come from `PT_PASSWORD` or a no-echo prompt, never from argv
 (except `seed --password` for demos). Binding a non-loopback address
 without TLS requires `--allow-plaintext` (meant for Tailscale, which
 already encrypts).
+
+## Status (2026-10-17)
+
+All milestones M1–M5 are done in both languages; see [README.md](README.md)
+for results and [USAGE.md](USAGE.md) for the user guide. The build ran in
+the order below, with the two Rust front ends and the Go server built in
+parallel, then the two Go front ends. Deviations from the UI spec are listed
+in [ui-spec.md §10](ui-spec.md#10-implementation-notes).
 
 ## Milestones (each language)
 

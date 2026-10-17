@@ -9,9 +9,14 @@ use ratatui::style::{Color, Modifier, Style};
 
 static TRUECOLOR: AtomicBool = AtomicBool::new(true);
 
-/// Decide colour depth from the environment (`PT_COLOR=256|truecolor` overrides).
-pub fn detect_color_depth() {
-    TRUECOLOR.store(truecolor_from_env(|k| std::env::var(k).ok()), Ordering::Relaxed);
+/// Decide colour depth: `--colors 256|truecolor` wins, then `PT_COLOR`,
+/// then what the terminal advertises.
+pub fn detect_color_depth(forced: Option<&str>) {
+    let truecolor = match forced {
+        Some(v) => !v.starts_with("256"),
+        None => truecolor_from_env(|k| std::env::var(k).ok()),
+    };
+    TRUECOLOR.store(truecolor, Ordering::Relaxed);
 }
 
 

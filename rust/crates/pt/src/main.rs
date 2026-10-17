@@ -57,8 +57,12 @@ enum Command {
         /// Extra CA certificate (PEM) to trust for https servers
         #[arg(long)]
         ca_cert: Option<PathBuf>,
+        /// midnight, daylight, solarized-dark or gruvbox
         #[arg(long)]
         theme: Option<String>,
+        /// Force colours: 256 or truecolor (default: detect from the terminal)
+        #[arg(long, value_parser = ["256", "truecolor"])]
+        colors: Option<String>,
     },
     /// Forget the saved session for a server
     Logout {
@@ -184,8 +188,8 @@ async fn main() -> anyhow::Result<()> {
                 Ok(())
             }
         },
-        Command::Tui { server, user, ca_cert, theme } => {
-            pt_tui::run(pt_tui::Options { server, user, ca_cert, theme }).await
+        Command::Tui { server, user, ca_cert, theme, colors } => {
+            pt_tui::run(pt_tui::Options { server, user, ca_cert, theme, colors }).await
         }
         Command::Logout { server } => pt_tui::forget_session(&server),
     }

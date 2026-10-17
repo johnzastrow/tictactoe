@@ -6,6 +6,7 @@
 > SQLite server, built to see how rich a terminal UI can get next to a
 > browser. Quick start: `cd rust && make pt && ./target/release/pt seed`
 > (or `cd go && make pt && ./bin/pt seed`), then `pt serve` and `pt tui`.
+> Full instructions: the [pt usage guide](docs/pt/USAGE.md).
 
 A learning project that compares **Rust** and **Go** on the same task: a
 tic-tac-toe app that is equally playable from a **rich terminal UI** and a
@@ -206,11 +207,11 @@ are deterministic.
 
 ```sh
 cd rust
-cargo run --release              # TUI + web at http://127.0.0.1:8787
-cargo run --release -- --no-web  # TUI only
-cargo run --release -- serve     # web only (Ctrl-C to stop)
-cargo run --release -- --ai off  # two humans (also: --ai x, --ai o [default])
-cargo run --release -- -d hard   # AI level: easy, medium [default], hard
+cargo run --release --bin ttt              # TUI + web at http://127.0.0.1:8787
+cargo run --release --bin ttt -- --no-web  # TUI only
+cargo run --release --bin ttt -- serve     # web only (Ctrl-C to stop)
+cargo run --release --bin ttt -- --ai off  # two humans (also: --ai x, --ai o [default])
+cargo run --release --bin ttt -- -d hard   # AI level: easy, medium [default], hard
 cargo test                       # core, hub, end-to-end WebSocket, TUI render tests
 ```
 

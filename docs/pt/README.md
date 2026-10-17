@@ -18,6 +18,9 @@ database file (one at a time): the same wire protocol
 ([protocol.md](protocol.md)), the same schema ([schema.sql](schema.sql)),
 the same password hashes and the same undo records.
 
+**New here? Read the [usage guide](USAGE.md)**: running it, every view,
+the filter language, editing, the full keyboard reference and troubleshooting.
+
 Specs: [PLAN.md](PLAN.md) (decisions and architecture) ·
 [protocol.md](protocol.md) · [schema.sql](schema.sql) · [ui-spec.md](ui-spec.md)
 (views, controls and keymap that all four front ends implement).
@@ -60,7 +63,8 @@ pt tui --server https://host:8788 --ca-cert "$(mkcert -CAROOT)/rootCA.pem"
 pt serve --bind 100.x.y.z:8788 --allow-plaintext
 ```
 
-Other commands: `pt user add <name> --role admin|member|viewer`,
+Full instructions, including LAN setup and backups, are in
+[USAGE.md](USAGE.md). Other commands: `pt user add <name> --role admin|member|viewer`,
 `pt user passwd <name>`, `pt user list`, `pt logout --server URL`.
 Passwords come from `PT_PASSWORD` or a no-echo prompt.
 
