@@ -1,0 +1,20 @@
+[package]
+name = "pt"
+description = "pt: projects & tasks — server, seeder, user admin and TUI client in one binary"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+pt-core.workspace = true
+pt-server.workspace = true
+pt-tui.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+rpassword = "7"
+
+[lints]
+workspace = true

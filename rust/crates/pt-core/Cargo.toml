@@ -1,0 +1,13 @@
+[package]
+name = "pt-core"
+description = "pt: model, validation, query language, dates, fuzzy matching and client replica (pure, wasm-safe)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

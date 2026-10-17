@@ -1,0 +1,6 @@
+[package]
+name = "pt-web"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]

@@ -8,3 +8,4 @@ go/dist/
 *.swp
 .idea/
 .vscode/
+rust/crates/pt-server/web-dist/

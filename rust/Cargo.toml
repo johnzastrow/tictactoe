@@ -1,15 +1,26 @@
 [workspace]
 resolver = "3"
-members = ["crates/ttt-core", "crates/ttt-server", "crates/ttt"]
+members = [
+    "crates/ttt-core", "crates/ttt-server", "crates/ttt",
+    "crates/pt-core", "crates/pt-server", "crates/pt-tui", "crates/pt-web", "crates/pt",
+]
+# pt-web targets wasm32 only; build it with trunk (see crates/pt-web).
+default-members = [
+    "crates/ttt-core", "crates/ttt-server", "crates/ttt",
+    "crates/pt-core", "crates/pt-server", "crates/pt-tui", "crates/pt",
+]
 
 [workspace.package]
-version = "0.3.1"
+version = "0.4.0"
 edition = "2024"
 rust-version = "1.85"
 
 [workspace.dependencies]
 ttt-core = { path = "crates/ttt-core" }
 ttt-server = { path = "crates/ttt-server" }
+pt-core = { path = "crates/pt-core" }
+pt-server = { path = "crates/pt-server" }
+pt-tui = { path = "crates/pt-tui" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "time", "signal"] }
