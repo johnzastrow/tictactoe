@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1] - 2026-10-16
+
+### Changed
+- README: full architecture write-up: what is unusual about the design, the four
+  rules (pure core, single state owner, intents in / snapshots out, peer front ends),
+  life of a move, design decisions, Rust vs Go mapping, extension points, code map.
+
 ## [0.3.0] - 2026-10-16
 
 ### Added
