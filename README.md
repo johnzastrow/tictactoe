@@ -1,5 +1,12 @@
 # Tic-Tac-Toe: one game, two interfaces, two languages
 
+> **This repo now holds two experiments.** Tic-tac-toe (this page) and
+> **[pt: projects & tasks](docs/pt/README.md)**, a data-dense business app
+> with a TUI *and* a WebAssembly web client in each language on one shared
+> SQLite server, built to see how rich a terminal UI can get next to a
+> browser. Quick start: `cd rust && make pt && ./target/release/pt seed`
+> (or `cd go && make pt && ./bin/pt seed`), then `pt serve` and `pt tui`.
+
 A learning project that compares **Rust** and **Go** on the same task: a
 tic-tac-toe app that is equally playable from a **rich terminal UI** and a
 **local web page**, *at the same time*, on one shared live game.

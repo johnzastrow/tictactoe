@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.4.0] - 2026-10-17
+
+### Added
+- **pt (projects & tasks)**, a second experiment: one SQLite-backed server
+  that any number of TUI and browser clients connect to, in both languages.
+  - Shared specs in `docs/pt/`: plan, wire protocol, schema, UI spec.
+  - Rust: `pt-core` (shared by server, TUI and WASM), `pt-server` (axum,
+    rusqlite, Argon2id sessions, per-field optimistic concurrency, undo/redo),
+    `pt-tui` (ratatui), `pt-web` (Leptos → WASM, embedded), and the `pt` CLI
+    (`serve`, `seed`, `user`, `tui`, `logout`).
+  - Go: the same pieces with net/http, modernc.org/sqlite, Bubble Tea v2,
+    and a `syscall/js` WASM client with a hand-written DOM kit.
+  - Nine views (projects, tasks, kanban board, Gantt timeline, dashboard,
+    activity, templates, custom fields, users), an editable data grid,
+    fuzzy comboboxes, a natural-language date picker, cascading dialogs, a
+    query language, live presence and conflict markers.
+  - Protocol conformance suite that runs against either server; Playwright
+    suites for both web clients.
+- Both servers send precompressed (`.gz`) web assets to browsers that accept them.
+
+
 ## [0.3.1] - 2026-10-16
 
 ### Changed
