@@ -1,6 +1,27 @@
 [package]
 name = "pt-web"
+description = "pt web client: Leptos (CSR) front end compiled to WebAssembly, served by pt-server"
 version.workspace = true
 edition.workspace = true
+rust-version = "1.88"
 
 [dependencies]
+pt-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+leptos = { version = "0.8", features = ["csr"] }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+console_error_panic_hook = "0.1"
+web-sys = { version = "0.3", features = [
+    "Window", "Document", "Element", "HtmlElement", "HtmlInputElement", "HtmlTextAreaElement", "HtmlSelectElement",
+    "Node", "NodeList", "Event", "EventTarget", "KeyboardEvent", "MouseEvent", "PointerEvent", "WheelEvent",
+    "FocusEvent", "DragEvent", "DataTransfer", "ClipboardEvent", "InputEvent", "DomRect", "CssStyleDeclaration",
+    "WebSocket", "MessageEvent", "CloseEvent", "BinaryType", "Location", "Storage", "Navigator", "Clipboard",
+    "Request", "RequestInit", "RequestCredentials", "RequestMode", "Response", "Headers", "ScrollIntoViewOptions",
+    "ScrollLogicalPosition", "ScrollBehavior", "Performance", "DomTokenList", "AddEventListenerOptions", "MediaQueryList",
+] }
+
+[lints]
+workspace = true
