@@ -1257,7 +1257,7 @@ impl<'a> Cx<'a> {
             let missing = if m.kind == Kind::Password {
                 password.is_none()
             } else {
-                row.get(m.name).is_none_or(|v| v.is_null() || v.as_str() == Some(""))
+                row.get(m.name).is_none_or(|v| v.is_null() || v.as_str() == Some("") || v.as_i64() == Some(0))
             };
             if missing {
                 return Err(OpErr::Invalid(format!("{} is required", m.label)));

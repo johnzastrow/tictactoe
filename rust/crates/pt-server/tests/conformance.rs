@@ -417,7 +417,7 @@ async fn undo_conflicts_when_someone_else_changed_it() {
     let r = a.call(|req| ClientMsg::Undo { req }).await;
     assert!(!r.ok);
     assert_eq!(r.error.unwrap().code, "conflict");
-    assert_eq!(r.conflicts[0].current, json!(78.0));
+    assert!(pt_core::fields::values_equal(&r.conflicts[0].current, &json!(78)), "{:?}", r.conflicts);
     // put it back
     let r = b.mutate(vec![Op::set(Entity::Task, t.id, "est_hours", json!(78), json!(t.est_hours))]).await;
     assert!(r.ok);
