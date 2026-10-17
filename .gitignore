@@ -9,3 +9,4 @@ go/dist/
 .idea/
 .vscode/
 rust/crates/pt-server/web-dist/
+__pycache__/
