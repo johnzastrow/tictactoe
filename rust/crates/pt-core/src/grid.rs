@@ -382,7 +382,8 @@ impl Cell {
 }
 
 pub fn fmt_hours(h: f64) -> String {
-    let h = round2(h);
+    // `+ 0.0` turns -0.0 (e.g. the sum of an empty iterator) into 0.0
+    let h = round2(h) + 0.0;
     if h.fract() == 0.0 {
         format!("{h:.0}")
     } else if (h * 10.0).fract().abs() < 1e-9 {
@@ -1198,6 +1199,13 @@ mod tests {
         assert!(parse_input(&r, Entity::Task, "deps", 102, "#9").is_err());
         assert_eq!(edit_text(&r, Entity::Task, "assignee_id", 101), "bob");
         assert_eq!(display_value(&r, Entity::Task, "status", &json!("in_progress")), "In progress");
+    }
+
+    #[test]
+    fn hours_format() {
+        assert_eq!(fmt_hours(std::iter::empty::<f64>().sum()), "0");
+        assert_eq!(fmt_hours(2.5), "2.5");
+        assert_eq!(fmt_hours(1.234), "1.23");
     }
 
     #[test]
