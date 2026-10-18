@@ -1,0 +1,5 @@
+[build]
+target = "index.html"
+dist = "../demo-server/web-dist"
+release = true
+filehash = true

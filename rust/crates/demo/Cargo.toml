@@ -1,0 +1,19 @@
+[package]
+name = "demo"
+description = "demo: a control gallery — server, reset and TUI client in one binary"
+version = "0.5.0"
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+demo-core.workspace = true
+demo-server.workspace = true
+demo-tui.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+
+[lints]
+workspace = true

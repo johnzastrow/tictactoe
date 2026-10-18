@@ -1,5 +1,12 @@
 # Tic-Tac-Toe: one game, two interfaces, two languages
 
+> **New: [demo](docs/demo/README.md)**, a gallery with one control per tab
+> (text, dates, combobox, grid, menus, palette, kanban, Gantt…) in all four
+> clients, built because pt's screens are too busy to test a single control.
+> `cd rust && make demo && ./target/release/demo serve`, then
+> `demo tui --name you` or open http://127.0.0.1:8790.
+> [Screenshots](docs/demo/screenshots/README.md).
+>
 > **This repo now holds two experiments.** Tic-tac-toe (this page) and
 > **[pt: projects & tasks](docs/pt/README.md)**, a data-dense business app
 > with a TUI *and* a WebAssembly web client in each language on one shared

@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.5.0] - 2026-10-18
+
+### Added
+- **demo**, a control gallery: each control on a tab of its own, so it can
+  be tried, demonstrated and recorded without pt's busy screens. Same
+  architecture as pt in both languages (one server with a live WebSocket
+  hub and SQLite; a TUI and a WASM web client), with pt's onscreen help
+  (menu bar, hint bar, searchable help, command palette) on every screen.
+  - 16 tabs: text, number spinner and slider, natural-language date with
+    calendar, dropdown, fuzzy combobox, tag chips, text area, checkboxes /
+    radio / toggle, cascading selects, editable grid, menu bar and context
+    menu, command palette, dialogs and toasts, charts, kanban, Gantt.
+  - Every control's value is shared live between all clients, with per-key
+    versions and conflict messages. Joining takes a display name only.
+  - Specs in `docs/demo/`: plan, wire protocol, schema, UI spec, usage guide.
+  - Rust: `demo-core`, `demo-server` (with an 18-test conformance suite
+    that passes against both servers), `demo-tui`, `demo-web`, `demo`
+    binary; `make demo`. Go: `internal/demo/*`, `cmd/demo`; `make demo`.
+  - Playwright suites for both web clients.
+- `docs/demo/screenshots/`: every tab in all four clients as stills and
+  recordings, Rust vs Go 2×2 comparisons and contact sheets. One step list
+  (`steps.py`) drives the VHS tapes and the Playwright run, so all four
+  clients get identical keys.
+
 ## [0.4.2] - 2026-10-17
 
 ### Added

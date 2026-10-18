@@ -9,10 +9,14 @@ go/dist/
 .idea/
 .vscode/
 rust/crates/pt-server/web-dist/
+rust/crates/demo-server/web-dist/
 __pycache__/
 # Go web client build outputs (make web)
 go/internal/pt/web/dist/*
 !go/internal/pt/web/dist/.gitkeep
+# Go demo web client build outputs (make demo-web)
+go/internal/demo/web/dist/*
+!go/internal/demo/web/dist/.gitkeep
 
 # pt demo databases
 *.db
@@ -22,3 +26,4 @@ go/internal/pt/web/dist/*
 # screenshot pipelines: intermediate frames and videos
 docs/pt/screenshots/*/raw/
 docs/screenshots/*/raw/
+docs/demo/screenshots/*/raw/

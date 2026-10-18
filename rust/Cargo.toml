@@ -3,11 +3,13 @@ resolver = "3"
 members = [
     "crates/ttt-core", "crates/ttt-server", "crates/ttt",
     "crates/pt-core", "crates/pt-server", "crates/pt-tui", "crates/pt-web", "crates/pt",
+    "crates/demo-core", "crates/demo-server", "crates/demo-tui", "crates/demo-web", "crates/demo",
 ]
-# pt-web targets wasm32 only; build it with trunk (see crates/pt-web).
+# pt-web and demo-web target wasm32 only; build them with trunk (see crates/pt-web, crates/demo-web).
 default-members = [
     "crates/ttt-core", "crates/ttt-server", "crates/ttt",
     "crates/pt-core", "crates/pt-server", "crates/pt-tui", "crates/pt",
+    "crates/demo-core", "crates/demo-server", "crates/demo-tui", "crates/demo",
 ]
 
 [workspace.package]
@@ -21,6 +23,9 @@ ttt-server = { path = "crates/ttt-server" }
 pt-core = { path = "crates/pt-core" }
 pt-server = { path = "crates/pt-server" }
 pt-tui = { path = "crates/pt-tui" }
+demo-core = { path = "crates/demo-core" }
+demo-server = { path = "crates/demo-server" }
+demo-tui = { path = "crates/demo-tui" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "sync", "time", "signal"] }
