@@ -14,7 +14,7 @@ web clients). Any client works against any server.
 | Origin check | If a request to `/ws`, `/api/login`, `/api/logout` carries an `Origin` header, it must equal `http://<Host>` or `https://<Host>` (same origin), else `403`. Non-browser clients send no `Origin`. |
 | Inbound WS limits | Frame ≤ 512 KiB; ≤ 2000 ops per `mutate`; token bucket of 50 msg/s, burst 100. Exceeding a limit closes the socket with code 1008. |
 | Keepalive | Server pings every 30 s; clients may also send `{"type":"ping"}` and get `{"type":"pong"}`. |
-| Security headers | All HTTP responses: `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, a strict `Content-Security-Policy` (`default-src 'self'`, scripts `'self' 'wasm-unsafe-eval'` + hashes of any inline loader script, `frame-ancestors 'none'`), `Strict-Transport-Security` under TLS. |
+| Security headers | All HTTP responses: `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin` (not `no-referrer`: with it, Safari sends `Origin: null` on same-origin `POST`s, which fails the origin check), `X-Frame-Options: DENY`, a strict `Content-Security-Policy` (`default-src 'self'`, scripts `'self' 'wasm-unsafe-eval'` + hashes of any inline loader script, `frame-ancestors 'none'`), `Strict-Transport-Security` under TLS. |
 
 ### Sessions
 

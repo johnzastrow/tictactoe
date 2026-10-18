@@ -13,3 +13,8 @@ __pycache__/
 # Go web client build outputs (make web)
 go/internal/pt/web/dist/*
 !go/internal/pt/web/dist/.gitkeep
+
+# pt demo databases
+*.db
+*.db-shm
+*.db-wal

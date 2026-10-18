@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.1] - 2026-10-17
+
+### Added
+- `docs/pt/ORIGINAL-PROMPT.md`: the request and design interview that
+  started pt, recorded verbatim.
+
+### Fixed
+- pt: logging in from Safari failed with 403. Both pt servers sent
+  `Referrer-Policy: no-referrer`. The Rust web client sends login with fetch
+  mode `same-origin`, and with that combination Safari (following the Fetch
+  spec) sends `Origin: null`, which the same-origin check refused. Both
+  servers now send `Referrer-Policy: same-origin`, which still keeps
+  referrers from going to other sites.
+
 ## [0.4.0] - 2026-10-17
 
 ### Added

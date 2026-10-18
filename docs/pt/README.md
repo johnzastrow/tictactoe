@@ -23,7 +23,9 @@ the filter language, editing, the full keyboard reference and troubleshooting.
 
 Specs: [PLAN.md](PLAN.md) (decisions and architecture) ·
 [protocol.md](protocol.md) · [schema.sql](schema.sql) · [ui-spec.md](ui-spec.md)
-(views, controls and keymap that all four front ends implement).
+(views, controls and keymap that all four front ends implement) ·
+[ORIGINAL-PROMPT.md](ORIGINAL-PROMPT.md) (the request and design interview
+that started it, verbatim).
 
 ## Quick start
 

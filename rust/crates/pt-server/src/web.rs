@@ -105,7 +105,7 @@ async fn security_headers(State(st): State<AppState>, req: Request<Body>, next: 
     let mut res = next.run(req).await;
     let h = res.headers_mut();
     h.insert(header::X_CONTENT_TYPE_OPTIONS, HeaderValue::from_static("nosniff"));
-    h.insert(header::REFERRER_POLICY, HeaderValue::from_static("no-referrer"));
+    h.insert(header::REFERRER_POLICY, HeaderValue::from_static("same-origin"));
     h.insert(header::X_FRAME_OPTIONS, HeaderValue::from_static("DENY"));
     if let Ok(v) = HeaderValue::from_str(&st.csp) {
         h.insert(header::CONTENT_SECURITY_POLICY, v);
