@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2] - 2026-10-17
+
+### Added
+- pt screenshots now cover all four clients: a recording of each control in
+  both **web** clients (Playwright), and a Rust-vs-Go 2×2 still and synced
+  recording per control (`docs/pt/screenshots/compare/`).
+- Every gallery image names its language (Rust in orange, Go in blue),
+  including the tic-tac-toe recordings.
+
 ## [0.4.1] - 2026-10-17
 
 ### Added

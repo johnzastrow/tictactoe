@@ -1,7 +1,9 @@
 # Cascading New project: program sets the code, template sets dates and budget
-Output "10-new-project.gif"
+Output "tui-10-new-project.gif"
+Output "raw/tui-10-new-project.mp4"
 Source "../tapes/_setup.tape"
 Sleep 800ms
+# open: the control opens here (compose4.py syncs the 2x2 clips on it)
 Insert
 Sleep 800ms
 Type "Storm drain inventory"

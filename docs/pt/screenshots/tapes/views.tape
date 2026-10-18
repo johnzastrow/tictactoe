@@ -1,5 +1,5 @@
 # Tour of the nine views, switched from the command palette (Ctrl+K)
-Output "views.gif"
+Output "tui-views.gif"
 Source "../tapes/_setup.tape"
 Sleep 1500ms
 Screenshot "raw/view-1-projects.png"

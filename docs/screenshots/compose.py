@@ -18,6 +18,7 @@ RAW = f"{LANG}/raw"
 H = 640  # output height, px
 TUI_FIRST_MOVE = 1.25  # seconds into the TUI recording when X's first move shows (tuned by eye)
 BG, FG = (17, 21, 31), (230, 233, 240)
+TAG = {"rust": ("RUST", (247, 112, 51)), "go": ("GO", (0, 173, 216))}[LANG]
 
 
 def font(size):
@@ -36,23 +37,44 @@ web = web.resize((round(web.width * H / web.height), H), Image.LANCZOS)
 M, GAP, TOP = 24, 24, 60
 out = Image.new("RGB", (M * 2 + tui.width + GAP + web.width, TOP + H + M), BG)
 d = ImageDraw.Draw(out)
-d.text((M, 16), "Terminal (X, keyboard)", fill=FG, font=font(26))
-d.text((M + tui.width + GAP, 16), "Browser (O, mouse)", fill=FG, font=font(26))
+for x, text in ((M, "Terminal (X, keyboard)"), (M + tui.width + GAP, "Browser (O, mouse)")):
+    d.text((x, 16), TAG[0], fill=TAG[1], font=font(28))
+    d.text((x + d.textlength(TAG[0] + "  ", font=font(28)), 16), "· " + text, fill=FG, font=font(26))
 out.paste(tui, (M, TOP))
 out.paste(web, (M + tui.width + GAP, TOP))
 out.save(f"{LANG}/live.png", optimize=True)
 print("ok", f"{LANG}/live.png")
 
 # ---- video: line up X's first move in both recordings, then stack ----
+
+
+def probe(path):
+    out = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                          "stream=width,height", "-of", "csv=p=0", path],
+                         capture_output=True, text=True, check=True).stdout
+    w, h = (int(v) for v in out.strip().split(","))
+    return round(w * H / h) // 2 * 2
+
+
+tw, ww = probe(f"{RAW}/tui.mp4"), probe(f"{RAW}/web.webm")
+head = Image.new("RGB", (tw + ww, H + TOP), BG)
+d = ImageDraw.Draw(head)
+for x, text in ((12, "Terminal (X, keyboard)"), (tw + 12, "Browser (O, mouse)")):
+    d.text((x, 16), TAG[0], fill=TAG[1], font=font(28))
+    d.text((x + d.textlength(TAG[0] + "  ", font=font(28)), 16), "· " + text, fill=FG, font=font(26))
+head.save(f"{RAW}/head.png")
+
 offset = float(open(f"{RAW}/web-offset.txt").read())
 skip = max(0.0, offset - TUI_FIRST_MOVE)
 graph = (
-    f"[0:v]fps=12,scale=-2:{H}:flags=lanczos[t];"
-    f"[1:v]trim=start={skip:.2f},setpts=PTS-STARTPTS,fps=12,scale=-2:{H}:flags=lanczos[w];"
-    "[t][w]hstack=inputs=2:shortest=1,split[a][b];"
+    f"[1:v]fps=12,scale={tw}:{H}:flags=lanczos[t];"
+    f"[2:v]trim=start={skip:.2f},setpts=PTS-STARTPTS,fps=12,scale={ww}:{H}:flags=lanczos[w];"
+    "[t][w]hstack=inputs=2:shortest=1[s];"
+    f"[0:v][s]overlay=0:{TOP}:shortest=1,split[a][b];"
     "[a]palettegen=max_colors=128:stats_mode=diff[p];"
     "[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle"
 )
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", f"{RAW}/tui.mp4", "-i", f"{RAW}/web.webm",
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", f"{RAW}/head.png",
+                "-i", f"{RAW}/tui.mp4", "-i", f"{RAW}/web.webm",
                 "-filter_complex", graph, f"{LANG}/live.gif"], check=True)
 print("ok", f"{LANG}/live.gif", f"(browser trimmed {skip:.2f}s)")

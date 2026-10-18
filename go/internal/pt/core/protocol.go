@@ -14,7 +14,7 @@ const (
 	DefaultPort     = 8788
 	MaxFrame        = 512 * 1024
 	MaxOps          = 2000
-	Version         = "0.4.1"
+	Version         = "0.4.2"
 )
 
 // Op is one mutate operation. Kind is "set", "create" or "delete".

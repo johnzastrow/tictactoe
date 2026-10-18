@@ -27,11 +27,12 @@ Specs: [PLAN.md](PLAN.md) (decisions and architecture) ·
 [ORIGINAL-PROMPT.md](ORIGINAL-PROMPT.md) (the request and design interview
 that started it, verbatim).
 
-![New project dialog: web (Leptos) and terminal (ratatui)](screenshots/rust/10-new-project.png)
+![New project dialog in all four clients: Rust left, Go right; web top, terminal bottom](screenshots/compare/10-new-project.png)
 
-**[Screenshots and recordings](screenshots/README.md)**: every form control
-open in the web client and the TUI side by side, in both languages, plus
-keyboard-driven recordings of each.
+*The New project dialog in all four clients: **Rust** on the left, **Go** on
+the right; **web** on top, **terminal** below.*
+**[Screenshots and recordings](screenshots/README.md)**: every form control in
+all four clients, as stills and recordings, Rust vs Go and web vs terminal.
 
 ## Quick start
 
