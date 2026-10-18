@@ -18,3 +18,7 @@ go/internal/pt/web/dist/*
 *.db
 *.db-shm
 *.db-wal
+
+# screenshot pipelines: intermediate frames and videos
+docs/pt/screenshots/*/raw/
+docs/screenshots/*/raw/

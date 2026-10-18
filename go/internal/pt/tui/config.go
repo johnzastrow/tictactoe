@@ -1,13 +1,14 @@
 package tui
 
 // Saved filters (ui-spec §5) live in the user config dir:
-// <UserConfigDir>/pt/tui-go.json, mode 0600.
+// <client.ConfigDir()>/tui-go.json, mode 0600.
 
 import (
 	"encoding/json"
 	"os"
 	"path/filepath"
 
+	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/pt/client"
 	"git.wharf.fluidgrid.org/jcz/tictactoe/go/internal/pt/core"
 )
 
@@ -25,11 +26,11 @@ type tuiConfig struct {
 
 // configPath can be overridden in tests.
 var configPath = func() (string, error) {
-	dir, err := os.UserConfigDir()
+	dir, err := client.ConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "pt", "tui-go.json"), nil
+	return filepath.Join(dir, "tui-go.json"), nil
 }
 
 func loadSaved() []savedFilter {

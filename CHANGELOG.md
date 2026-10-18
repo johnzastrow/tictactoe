@@ -5,6 +5,15 @@
 ### Added
 - `docs/pt/ORIGINAL-PROMPT.md`: the request and design interview that
   started pt, recorded verbatim.
+- Screenshots and recordings, with the scripts that make them:
+  - `docs/pt/screenshots/`: 12 form controls open in the web client and the
+    TUI side by side, for each language, plus a VHS recording of each in the
+    TUI and a tour of the nine views.
+  - `docs/screenshots/`: tic-tac-toe, the TUI and the browser playing one live
+    game, recorded together.
+- Rust TUI: "Context menu" in the command palette (the spec says the palette
+  lists every action; Go's already did).
+- Go TUI: `PT_CONFIG_DIR` overrides the config folder, as in the Rust TUI.
 
 ### Fixed
 - pt: logging in from Safari failed with 403. Both pt servers sent

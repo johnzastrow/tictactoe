@@ -438,7 +438,8 @@ confirmation, Cancel is the default and `y` / `n` answer.
   `~/Library/Application Support/pt/` (macOS), `~/.config/pt/` (Linux),
   `%AppData%\pt\` (Windows). The Rust TUI uses `sessions.json` and
   `filters.json`; the Go TUI uses `sessions.json` and `tui-go.json`. All are
-  readable only by you.
+  readable only by you. Set `PT_CONFIG_DIR` to use another folder (handy
+  for a second login on one machine, or scripted demos).
 
 ## 14. Troubleshooting
 

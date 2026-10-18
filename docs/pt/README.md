@@ -27,6 +27,12 @@ Specs: [PLAN.md](PLAN.md) (decisions and architecture) ·
 [ORIGINAL-PROMPT.md](ORIGINAL-PROMPT.md) (the request and design interview
 that started it, verbatim).
 
+![New project dialog: web (Leptos) and terminal (ratatui)](screenshots/rust/10-new-project.png)
+
+**[Screenshots and recordings](screenshots/README.md)**: every form control
+open in the web client and the TUI side by side, in both languages, plus
+keyboard-driven recordings of each.
+
 ## Quick start
 
 ```sh

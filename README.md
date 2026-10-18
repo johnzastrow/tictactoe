@@ -20,6 +20,13 @@ tic-tac-toe app that is equally playable from a **rich terminal UI** and a
 Both speak the same [wire protocol](docs/protocol.md), so either server works
 with the same browser page.
 
+![One game: the terminal plays X, the browser plays O](docs/screenshots/rust/live.gif)
+
+*One live game: the Rust TUI plays X from the keyboard while the browser
+plays O. The Go version and how these are recorded:
+[docs/screenshots](docs/screenshots/README.md). pt's form controls, web and
+terminal side by side: [docs/pt/screenshots](docs/pt/screenshots/README.md).*
+
 ## Architecture
 
 ### What's unusual about it

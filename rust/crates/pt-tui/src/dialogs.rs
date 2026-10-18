@@ -366,6 +366,7 @@ impl App {
             Action::ClearFilter,
             Action::SaveFilter,
             Action::Columns,
+            Action::ContextMenu,
             Action::SortDialog,
             Action::SortColumn,
             Action::GroupColumn,

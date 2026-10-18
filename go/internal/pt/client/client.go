@@ -1,6 +1,6 @@
 // Package client is the pt protocol client used by the Go TUI: HTTP login /
 // logout / health, the WebSocket connection with automatic reconnects, and
-// the per-server session cache (os.UserConfigDir()/pt/sessions.json, 0600).
+// the per-server session cache (ConfigDir()/sessions.json, 0600).
 package client
 
 import (
@@ -320,12 +320,25 @@ func (s *Session) Send(ctx context.Context, msg any) error {
 
 // ---- session cache ----
 
-func sessionsPath() (string, error) {
+// ConfigDir is pt's per-user config folder: $PT_CONFIG_DIR if set (as in the
+// Rust client), otherwise <UserConfigDir>/pt.
+func ConfigDir() (string, error) {
+	if d := os.Getenv("PT_CONFIG_DIR"); d != "" {
+		return d, nil
+	}
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return dir + string(os.PathSeparator) + "pt" + string(os.PathSeparator) + "sessions.json", nil
+	return dir + string(os.PathSeparator) + "pt", nil
+}
+
+func sessionsPath() (string, error) {
+	dir, err := ConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return dir + string(os.PathSeparator) + "sessions.json", nil
 }
 
 // sessionsFile can be overridden in tests.
