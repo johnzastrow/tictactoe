@@ -1,13 +1,15 @@
 # pt and demo (Go) builds. `make web` compiles the Go WebAssembly client into
 # internal/pt/web/dist/, which the server embeds; `make pt` builds the
 # binary with it. `make demo-web` / `make demo` do the same for demo
-# (internal/demo/web/dist/, bin/demo). Needs only the Go toolchain.
+# (internal/demo/web/dist/, bin/demo). `make ttt-tui` builds the terminal-only
+# tic-tac-toe binary (no web server linked in); `make ttt-tui-windows`
+# cross-compiles it to bin/ttt-tui.exe. Needs only the Go toolchain.
 
 WEBDIST  := internal/pt/web/dist
 DEMODIST := internal/demo/web/dist
 GOROOT   := $(shell go env GOROOT)
 
-.PHONY: web pt demo-web demo test clean-web clean-demo-web
+.PHONY: web pt demo-web demo ttt-tui ttt-tui-windows test clean-web clean-demo-web
 
 web:
 	mkdir -p $(WEBDIST)
@@ -30,6 +32,12 @@ demo-web:
 
 demo: demo-web
 	go build -trimpath -ldflags="-s -w" -o bin/demo ./cmd/demo
+
+ttt-tui:
+	CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o bin/ttt-tui ./cmd/ttt-tui
+
+ttt-tui-windows:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o bin/ttt-tui.exe ./cmd/ttt-tui
 
 test:
 	go vet ./...

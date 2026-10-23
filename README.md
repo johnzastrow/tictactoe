@@ -248,6 +248,10 @@ go test -race ./...              # core, hub, end-to-end WebSocket, TUI render t
 
 # Cross-compile from any OS, no extra toolchains needed:
 GOOS=windows GOARCH=amd64 go build -o bin/ttt.exe ./cmd/ttt
+
+# Terminal-only build: no web server linked in, opens no port
+make ttt-tui                     # bin/ttt-tui for this OS
+make ttt-tui-windows             # bin/ttt-tui.exe for Windows (amd64)
 ```
 
 Same keys, themes, and web page as the Rust version.

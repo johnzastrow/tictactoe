@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.6.0] - 2026-10-23
+
+### Added
+- `ttt-tui` (Go): a terminal-only tic-tac-toe binary. Same game, keys and
+  `-ai` / `-difficulty` flags as `ttt`, but the web adapter is not linked
+  in, so it opens no network port and embeds no web assets. Built with
+  `make ttt-tui`, or `make ttt-tui-windows` for a single static
+  `bin/ttt-tui.exe`.
+
 ## [0.5.0] - 2026-10-18
 
 ### Added
