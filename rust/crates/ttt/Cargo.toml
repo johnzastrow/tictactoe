@@ -10,12 +10,18 @@ ttt-core.workspace = true
 ttt-server.workspace = true
 tokio.workspace = true
 futures-util.workspace = true
-tracing.workspace = true
-tracing-subscriber.workspace = true
+tracing = { workspace = true, optional = true }
+tracing-subscriber = { workspace = true, optional = true }
 ratatui.workspace = true
 crossterm.workspace = true
 clap.workspace = true
 anyhow.workspace = true
+
+[features]
+default = ["web"]
+# Build without it (`--no-default-features`) for a terminal-only binary
+# that links no web server and opens no port.
+web = ["ttt-server/web", "dep:tracing", "dep:tracing-subscriber"]
 
 [lints]
 workspace = true

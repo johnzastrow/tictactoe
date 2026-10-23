@@ -51,7 +51,10 @@ enum Command {
     NewGame,
     SetAi(Option<Player>),
     SetDifficulty(Difficulty),
+    // Sent only by web clients; unused in a terminal-only build.
+    #[cfg_attr(not(feature = "web"), allow(dead_code))]
     ClientJoined,
+    #[cfg_attr(not(feature = "web"), allow(dead_code))]
     ClientLeft,
     /// Scheduled by the hub itself; ignored if the game moved on meanwhile.
     AiTurn {
@@ -97,6 +100,7 @@ impl HubHandle {
 
     /// Register a web client; the returned guard unregisters it on drop, so
     /// the count stays right even if the connection task panics or errors out.
+    #[cfg_attr(not(feature = "web"), allow(dead_code))]
     pub(crate) async fn join(&self) -> ClientGuard {
         let _ = self.tx.send(Command::ClientJoined).await;
         ClientGuard {
@@ -109,6 +113,7 @@ impl HubHandle {
     }
 }
 
+#[cfg_attr(not(feature = "web"), allow(dead_code))]
 pub(crate) struct ClientGuard {
     tx: mpsc::Sender<Command>,
 }

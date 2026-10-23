@@ -3,24 +3,29 @@
 //!   ttt                 TUI + web server (default)
 //!   ttt --no-web        TUI only
 //!   ttt serve           web server only (headless)
+//!
+//! Built with `--no-default-features` (no `web` feature), it is a
+//! terminal-only binary: no web server is linked in and none of the
+//! port/serve options exist.
 
 mod app;
 mod theme;
 mod ui;
 
-use std::{
-    io::stdout,
-    net::{Ipv4Addr, SocketAddr},
-    time::Duration,
-};
+#[cfg(feature = "web")]
+use std::net::{Ipv4Addr, SocketAddr};
+use std::{io::stdout, time::Duration};
 
 use anyhow::{Context, Result};
-use clap::{Parser, Subcommand, ValueEnum};
+#[cfg(feature = "web")]
+use clap::Subcommand;
+use clap::{Parser, ValueEnum};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
 };
-use tokio::{net::TcpListener, sync::oneshot};
+#[cfg(feature = "web")]
+use tokio::{net::TcpListener, sync::oneshot, task::JoinHandle};
 use ttt_core::{Difficulty, Player};
 use ttt_server::{HubHandle, spawn_hub};
 
@@ -28,8 +33,10 @@ const AI_DELAY: Duration = Duration::from_millis(350);
 
 #[derive(Parser)]
 #[command(version, about)]
+#[cfg_attr(not(feature = "web"), command(about = "Tic-tac-toe in the terminal"))]
 struct Cli {
     /// Port for the web interface (always bound to 127.0.0.1).
+    #[cfg(feature = "web")]
     #[arg(long, short, default_value_t = 8787, global = true)]
     port: u16,
 
@@ -42,13 +49,16 @@ struct Cli {
     difficulty: Level,
 
     /// Run the TUI without starting the web interface.
+    #[cfg(feature = "web")]
     #[arg(long)]
     no_web: bool,
 
+    #[cfg(feature = "web")]
     #[command(subcommand)]
     command: Option<Command>,
 }
 
+#[cfg(feature = "web")]
 #[derive(Subcommand)]
 enum Command {
     /// Run only the web interface (no TUI). Stop with Ctrl-C.
@@ -94,13 +104,17 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     let hub = spawn_hub(cli.ai.into(), cli.difficulty.into(), AI_DELAY);
 
+    #[cfg(feature = "web")]
     match cli.command {
         Some(Command::Serve) => run_headless(hub, cli.port).await,
-        None => run_tui(hub, cli.port, !cli.no_web).await,
+        None => run_tui(hub, (!cli.no_web).then_some(cli.port)).await,
     }
+    #[cfg(not(feature = "web"))]
+    run_tui(hub).await
 }
 
 /// Bind before doing anything else so "port in use" is a clean error.
+#[cfg(feature = "web")]
 async fn bind(port: u16) -> Result<TcpListener> {
     let addr = SocketAddr::from((Ipv4Addr::LOCALHOST, port));
     TcpListener::bind(addr)
@@ -108,6 +122,7 @@ async fn bind(port: u16) -> Result<TcpListener> {
         .with_context(|| format!("could not listen on {addr} (in use? try --port <N>)"))
 }
 
+#[cfg(feature = "web")]
 async fn run_headless(hub: HubHandle, port: u16) -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
@@ -124,24 +139,40 @@ async fn run_headless(hub: HubHandle, port: u16) -> Result<()> {
     Ok(())
 }
 
-async fn run_tui(hub: HubHandle, port: u16, web: bool) -> Result<()> {
+/// The web server running alongside the TUI.
+#[cfg(feature = "web")]
+struct WebServer {
+    url: String,
+    stop: oneshot::Sender<()>,
+    task: JoinHandle<std::io::Result<()>>,
+}
+
+#[cfg(feature = "web")]
+async fn start_web(hub: HubHandle, port: u16) -> Result<WebServer> {
+    let listener = bind(port).await?;
+    let url = format!("http://{}", listener.local_addr()?);
+    let (stop, rx) = oneshot::channel::<()>();
+    let task = tokio::spawn(async move {
+        ttt_server::serve(listener, hub, async {
+            let _ = rx.await;
+        })
+        .await
+    });
+    Ok(WebServer { url, stop, task })
+}
+
+/// `web_port: None` runs the TUI on its own.
+async fn run_tui(hub: HubHandle, #[cfg(feature = "web")] web_port: Option<u16>) -> Result<()> {
     // No tracing subscriber in TUI mode: log lines would corrupt the screen.
-    let mut stop_web = None;
-    let mut web_url = None;
-    let mut server = None;
-    if web {
-        let listener = bind(port).await?;
-        web_url = Some(format!("http://{}", listener.local_addr()?));
-        let (tx, rx) = oneshot::channel::<()>();
-        stop_web = Some(tx);
-        let hub = hub.clone();
-        server = Some(tokio::spawn(async move {
-            ttt_server::serve(listener, hub, async {
-                let _ = rx.await;
-            })
-            .await
-        }));
-    }
+    #[cfg(feature = "web")]
+    let web = match web_port {
+        Some(port) => Some(start_web(hub.clone(), port).await?),
+        None => None,
+    };
+    #[cfg(feature = "web")]
+    let web_url = web.as_ref().map(|w| w.url.clone());
+    #[cfg(not(feature = "web"))]
+    let web_url = None;
 
     // Restore the terminal (including mouse mode) even if we panic.
     let default_hook = std::panic::take_hook();
@@ -156,12 +187,11 @@ async fn run_tui(hub: HubHandle, port: u16, web: bool) -> Result<()> {
     let _ = execute!(stdout(), DisableMouseCapture);
     ratatui::restore();
 
-    if let Some(tx) = stop_web {
-        let _ = tx.send(());
-    }
-    if let Some(server) = server {
+    #[cfg(feature = "web")]
+    if let Some(web) = web {
+        let _ = web.stop.send(());
         // Don't hang on exit if a browser keeps a socket open.
-        let _ = tokio::time::timeout(Duration::from_secs(2), server).await;
+        let _ = tokio::time::timeout(Duration::from_secs(2), web.task).await;
     }
     result.context("TUI error")
 }
