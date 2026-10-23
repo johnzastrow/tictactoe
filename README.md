@@ -227,6 +227,9 @@ cargo run --release --bin ttt -- serve     # web only (Ctrl-C to stop)
 cargo run --release --bin ttt -- --ai off  # two humans (also: --ai x, --ai o [default])
 cargo run --release --bin ttt -- -d hard   # AI level: easy, medium [default], hard
 cargo test                       # core, hub, end-to-end WebSocket, TUI render tests
+
+# Terminal-only build: ttt without its "web" feature, opens no port
+make ttt-tui                     # target/release/ttt-tui (.exe on Windows, no DLLs)
 ```
 
 TUI keys: arrows/`hjkl` + Enter, `1`–`9`, mouse hover/click, `n` new game,

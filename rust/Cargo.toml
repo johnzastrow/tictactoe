@@ -19,7 +19,8 @@ rust-version = "1.85"
 
 [workspace.dependencies]
 ttt-core = { path = "crates/ttt-core" }
-ttt-server = { path = "crates/ttt-server" }
+# Members opt into ttt-server's "web" feature themselves (ttt does by default).
+ttt-server = { path = "crates/ttt-server", default-features = false }
 pt-core = { path = "crates/pt-core" }
 pt-server = { path = "crates/pt-server" }
 pt-tui = { path = "crates/pt-tui" }

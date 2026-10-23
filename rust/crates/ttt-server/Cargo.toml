@@ -8,17 +8,27 @@ rust-version.workspace = true
 [dependencies]
 ttt-core.workspace = true
 serde.workspace = true
-serde_json.workspace = true
+serde_json = { workspace = true, optional = true }
 tokio.workspace = true
-axum.workspace = true
-futures-util.workspace = true
-tracing.workspace = true
+axum = { workspace = true, optional = true }
+futures-util = { workspace = true, optional = true }
+tracing = { workspace = true, optional = true }
 thiserror.workspace = true
 fastrand.workspace = true
+
+[features]
+default = ["web"]
+# The localhost web server. Without it the crate is just the hub, for a
+# terminal-only build.
+web = ["dep:axum", "dep:futures-util", "dep:serde_json", "dep:tracing"]
 
 [dev-dependencies]
 tokio-tungstenite.workspace = true
 serde_json.workspace = true
+
+[[test]]
+name = "ws"
+required-features = ["web"]
 
 [lints]
 workspace = true

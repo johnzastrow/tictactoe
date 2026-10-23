@@ -3,11 +3,15 @@
 ## [0.6.0] - 2026-10-23
 
 ### Added
-- `ttt-tui` (Go): a terminal-only tic-tac-toe binary. Same game, keys and
-  `-ai` / `-difficulty` flags as `ttt`, but the web adapter is not linked
-  in, so it opens no network port and embeds no web assets. Built with
-  `make ttt-tui`, or `make ttt-tui-windows` for a single static
-  `bin/ttt-tui.exe`.
+- `ttt-tui`: a terminal-only tic-tac-toe binary in both languages. Same
+  game, keys and AI options as `ttt`, but the web adapter is not linked in,
+  so it opens no network port and embeds no web assets.
+  - Go: `cmd/ttt-tui`; `make ttt-tui`, or `make ttt-tui-windows` for a
+    single static `bin/ttt-tui.exe`.
+  - Rust: a default `web` feature on `ttt-server` and `ttt`; building `ttt`
+    with `--no-default-features` drops axum and the server. `make ttt-tui`
+    writes `target/release/ttt-tui` (on Windows a `.exe` with the C runtime
+    linked statically, so it needs no Visual C++ redistributable).
 
 ## [0.5.0] - 2026-10-18
 
